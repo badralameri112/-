@@ -38,7 +38,7 @@
       background-size: 18px 18px;
     }
 
-    /* شريط التمرير المخصص الأنيق */
+    /* شريط التمرير المخصص */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -79,14 +79,34 @@
       stroke-dasharray: 4 4;
     }
 
-    /* حركة الإشعار التفاعلي Toast */
     #toastMessage {
       transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    /* شريط التزامن التلقائي السحابي */
+    #cloudSyncBanner {
+      transition: all 0.4s ease-in-out;
     }
   </style>
 </head>
 
 <body class="bg-pattern min-h-screen flex flex-col justify-between selection:bg-emerald-800 selection:text-white">
+
+  <!-- ==================== شريط التزامن السحابي التلقائي ==================== -->
+  <div id="cloudSyncBanner" class="hidden bg-gradient-to-r from-amber-600 to-amber-700 text-white px-4 py-2.5 shadow-md border-b border-amber-500/50">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs md:text-sm">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 animate-spin text-amber-200" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span id="cloudSyncText" class="font-semibold">جاري تهيئة وتثبيت موسوعة الـ 24 ألف راوٍ تلقائياً في جهازك...</span>
+      </div>
+      <div class="w-full sm:w-48 bg-amber-900/50 rounded-full h-2 overflow-hidden border border-amber-400/40">
+        <div id="cloudSyncBar" class="bg-amber-200 h-2 rounded-full transition-all duration-300" style="width: 15%"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- ==================== الشريط العلوي والتنقل ==================== -->
   <header class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-stone-900 text-white shadow-xl border-b border-emerald-800/60 sticky top-0 z-40">
@@ -112,16 +132,16 @@
 
         <!-- أزرار الإجراءات وحالة قاعدة البيانات -->
         <div class="flex items-center gap-3">
-          <!-- شارة حالة قاعدة البيانات المدمجة أو المستوردة -->
+          <!-- شارة حالة قاعدة البيانات -->
           <div id="dbStatusBadge" class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-800/80 border border-emerald-600/50 text-xs text-emerald-100 font-medium">
             <span id="dbStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
             <span id="dbStatusText">جاري تهيئة الرواة...</span>
           </div>
 
-          <!-- زر فتح نافذة استيراد الموسوعة 24 ألف راوٍ -->
+          <!-- زر استيراد يدوي احتياطي -->
           <button id="btnOpenImportModal" class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs md:text-sm font-bold flex items-center gap-1.5 shadow transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-            <span class="hidden md:inline">استيراد ملف الموسوعة</span>
+            <span class="hidden md:inline">تحديث يدوي للقاعدة</span>
             <span class="md:hidden">استيراد</span>
           </button>
         </div>
@@ -159,23 +179,17 @@
 
     <!-- ----------------- التبويب الأول: المشجر التفاعلي ----------------- -->
     <section id="tabTree" class="tab-content block">
-      
-      <!-- شريط أدوات المشجر -->
       <div class="bg-white rounded-2xl shadow-md border border-stone-200 p-4 mb-6">
         <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
-          
-          <!-- اختيار الراوي الأساسي للمشجر -->
           <div class="w-full lg:w-1/2 flex items-center gap-2">
             <label for="treeRootNarratorInput" class="text-sm font-bold text-gray-700 whitespace-nowrap">الراوي المستهدف:</label>
             <div class="relative w-full">
               <input type="text" id="treeRootNarratorInput" placeholder="ابحث باسم الراوي (مثلاً: مالك، البخاري، الزهري)..." 
                 class="w-full px-4 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200 outline-none text-sm transition">
-              <!-- قائمة الاقتراحات السريعة -->
               <div id="treeSuggestionsBox" class="hidden absolute top-full right-0 w-full bg-white rounded-xl shadow-2xl border border-stone-200 mt-1 max-h-60 overflow-y-auto z-30"></div>
             </div>
           </div>
 
-          <!-- خيارات العمق وطريقة العرض -->
           <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
             <div class="flex items-center gap-2 text-xs font-semibold text-gray-600 bg-stone-100 px-3 py-2 rounded-xl">
               <span>عمق الشيوخ:</span>
@@ -195,14 +209,10 @@
               إعادة ضبط
             </button>
           </div>
-
         </div>
       </div>
 
-      <!-- مساحة رسم المشجر وشبكة الطبقات -->
       <div class="bg-white rounded-2xl shadow-xl border border-stone-200 p-6 min-h-[550px] relative overflow-hidden">
-        
-        <!-- مفاتيح المشجر -->
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3 mb-6 text-xs text-gray-600 font-medium">
           <div class="flex items-center gap-4">
             <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span> صحابي جليل</span>
@@ -213,23 +223,16 @@
           <span class="text-stone-400">انقر فوق بطاقة أي راوٍ لعرض ترجمته الكاملة وشيوخه</span>
         </div>
 
-        <!-- حاوية الرسم المتجاوبة مع SVG Connectors -->
         <div id="treeContainer" class="relative w-full overflow-x-auto min-w-[700px] pb-12">
           <svg id="treeSvgCanvas" class="absolute top-0 right-0 w-full h-full pointer-events-none z-0"></svg>
-          <div id="treeLayersGrid" class="flex flex-col-reverse gap-10 relative z-10">
-            <!-- تتولى دالة renderTree() رسم الطبقات هنا ديناميكياً -->
-          </div>
+          <div id="treeLayersGrid" class="flex flex-col-reverse gap-10 relative z-10"></div>
         </div>
-
       </div>
-
     </section>
 
     <!-- ----------------- التبويب الثاني: محرك نقد الأسانيد ----------------- -->
     <section id="tabCritic" class="tab-content hidden">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- لوحة تشييد السند -->
         <div class="lg:col-span-1 bg-white rounded-2xl shadow-md border border-stone-200 p-5">
           <h3 class="text-lg font-bold font-amiri text-emerald-950 mb-2 flex items-center gap-2">
             <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -239,12 +242,8 @@
             أضف الرواة بالترتيب من أدنى السند (المصنف) صعوداً إلى منتهاه (الصحابي):
           </p>
 
-          <!-- قائمة الرواة المضافين للسند -->
-          <div id="chainBuilderList" class="space-y-3 mb-5 min-h-[160px] bg-stone-50 p-3 rounded-xl border border-stone-200">
-            <!-- تضاف الرواة هنا -->
-          </div>
+          <div id="chainBuilderList" class="space-y-3 mb-5 min-h-[160px] bg-stone-50 p-3 rounded-xl border border-stone-200"></div>
 
-          <!-- نموذج إضافة راوٍ للسلسلة -->
           <div class="space-y-3 border-t border-stone-200 pt-4">
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">صيغة الأداء والتحمل:</label>
@@ -276,10 +275,8 @@
               </button>
             </div>
           </div>
-
         </div>
 
-        <!-- لوحة نتائج فحص الاتصال والانقطاع والعلل -->
         <div class="lg:col-span-2 bg-white rounded-2xl shadow-md border border-stone-200 p-6 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between border-b border-stone-200 pb-3 mb-4">
@@ -291,35 +288,26 @@
               </span>
             </div>
 
-            <!-- عرض مرئي لسلامة الحلقات -->
             <div id="chainVisualFlow" class="flex flex-wrap items-center gap-2 mb-6 p-4 rounded-xl bg-stone-50 border border-dashed border-stone-300 text-sm">
               <span class="text-gray-400 text-xs">قم بتركيب سند من اللوحة يميناً ثم اضغط "نقد وفحص السند" لمعاينة العلاقات الحديثية.</span>
             </div>
 
-            <!-- تفاصيل العلل المرصودة -->
-            <div id="auditDetailsList" class="space-y-3">
-              <!-- تظهر تقارير التحقق التلقائية هنا -->
-            </div>
+            <div id="auditDetailsList" class="space-y-3"></div>
           </div>
 
-          <!-- توجيه حديثي علمي -->
           <div class="mt-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2">
             <svg class="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <div>
               <span class="font-bold">قاعدة التحقق:</span>
-              يقوم المحرك بمطابقة معاصرة الرواة طبقياً وتاريخياً، والتحقق من كون الراوي في مصفوفة الشيوخ المعتمدين، وفحص عنعنة المشهورين بالتدليس (مثل قتادة والأعمش) واستثناء مواضع السماع الصريح.
+              يقوم المحرك بمطابقة معاصرة الرواة طبقياً وتاريخياً، والتحقق من كون الراوي في مصفوفة الشيوخ المعتمدين، وفحص عنعنة المشهورين بالتدليس واستثناء مواضع السماع الصريح.
             </div>
           </div>
-
         </div>
-
       </div>
     </section>
 
     <!-- ----------------- التبويب الثالث: موسوعة الرواة ----------------- -->
     <section id="tabEncyclopedia" class="tab-content hidden">
-      
-      <!-- إحصائيات وبحث وفلاتر -->
       <div class="bg-white rounded-2xl shadow-md border border-stone-200 p-5 mb-6">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
           <div>
@@ -354,18 +342,13 @@
         </div>
       </div>
 
-      <!-- شبكة عرض بطاقات الرواة -->
-      <div id="encyclopediaGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <!-- تتولى دالة renderEncyclopedia() تعبئتها ديناميكياً -->
-      </div>
+      <div id="encyclopediaGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"></div>
 
-      <!-- أزرار التصفح (Pagination) السلسة -->
       <div class="flex items-center justify-between bg-white px-5 py-3 rounded-xl border border-stone-200 text-xs font-semibold">
         <button id="btnPrevPage" class="px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition disabled:opacity-40">السابق</button>
         <span id="pageIndicatorText" class="text-stone-600">صفحة ١ من ١</span>
         <button id="btnNextPage" class="px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition disabled:opacity-40">التالي</button>
       </div>
-
     </section>
 
     <!-- ----------------- التبويب الرابع: سلاسل الذهب ----------------- -->
@@ -375,10 +358,7 @@
         <p class="text-sm text-gray-600 mb-6">
           السلاسل التي نص أئمة الحديث (كالبخاري وأحمد وعلي بن المديني) على أنها من أعلى مدارج الصحة والإتقان في الرواية. انقر فوق السلسلة لتحميلها فوراً في المشجر التفاعلي.
         </p>
-
-        <div id="goldenChainsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- تتولى دالة renderGoldenChains() تعبئتها -->
-        </div>
+        <div id="goldenChainsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
       </div>
     </section>
 
@@ -400,9 +380,7 @@
                 <th class="p-3.5 border border-emerald-800">أشهر أعلامها ورواتها</th>
               </tr>
             </thead>
-            <tbody id="ibnHajarTableBody" class="divide-y divide-stone-200 text-gray-800">
-              <!-- تعبأ تلقائياً -->
-            </tbody>
+            <tbody id="ibnHajarTableBody" class="divide-y divide-stone-200 text-gray-800"></tbody>
           </table>
         </div>
       </div>
@@ -410,7 +388,7 @@
 
   </main>
 
-  <!-- ==================== نافذة تفاصيل الراوي المنبثقة ==================== -->
+  <!-- ==================== نافذة تفاصيل الراوي ==================== -->
   <div id="narratorDetailModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 max-h-[90vh] overflow-y-auto">
       <div class="flex items-start justify-between border-b border-stone-200 pb-3 mb-4">
@@ -442,9 +420,7 @@
 
         <div>
           <div class="text-xs font-bold text-gray-700 mb-1.5">الشيوخ المروي عنهم:</div>
-          <div id="modalNarratorTeachersList" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 bg-stone-50 rounded-xl border border-stone-200 text-xs">
-            <!-- قائمة شيوخ الراوي -->
-          </div>
+          <div id="modalNarratorTeachersList" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 bg-stone-50 rounded-xl border border-stone-200 text-xs"></div>
         </div>
 
         <div class="pt-3 flex gap-2">
@@ -457,13 +433,13 @@
     </div>
   </div>
 
-  <!-- ==================== نافذة استيراد الموسوعة الكاملة ==================== -->
+  <!-- ==================== نافذة التحديث اليدوي الاحتياطي ==================== -->
   <div id="importModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200">
       <div class="flex items-center justify-between border-b border-stone-200 pb-3 mb-4">
         <h3 class="text-xl font-bold font-amiri text-emerald-950 flex items-center gap-2">
           <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-          استيراد موسوعة الـ 24 ألف راوٍ
+          تحديث يدوي لقاعدة الرواة
         </h3>
         <button id="btnCloseImportModal" class="text-gray-400 hover:text-gray-700 p-1">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -471,20 +447,19 @@
       </div>
 
       <p class="text-xs text-gray-600 mb-4 leading-relaxed">
-        اختر ملف <code class="bg-stone-100 text-emerald-900 px-1.5 py-0.5 rounded font-bold">rawis_clean.min.json</code> الذي قمت بتنظيفه للتو. سيتم حفظ البيانات في متصفحك بشكل دائم وسريع عبر تقنية <span class="font-bold">IndexedDB</span> ولن تحتاج لرفع الملف مرة أخرى مطلقاً.
+        يقوم الموقع بجلب الرواة تلقائياً عبر السحابة. إذا أردت استبدال القاعدة بملف محلي معدل من طرفك:
       </p>
 
       <div class="border-2 border-dashed border-emerald-600/60 rounded-xl p-6 text-center cursor-pointer bg-stone-50 hover:bg-emerald-50/50 transition mb-4" id="modalDropZone">
         <input type="file" id="modalFileInput" accept=".json" class="hidden">
         <svg class="w-10 h-10 mx-auto text-emerald-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-        <span class="text-xs font-bold text-stone-800 block">اضغط لاختيار ملف الموسوعة النظيفة (.json)</span>
+        <span class="text-xs font-bold text-stone-800 block">اضغط لاختيار ملف الموسوعة (.json)</span>
         <span id="modalFileNameLabel" class="text-xs text-emerald-700 mt-1 block"></span>
       </div>
 
-      <!-- مؤشر التقدم -->
       <div id="importProgressBarContainer" class="hidden mb-4">
         <div class="flex justify-between text-xs text-stone-600 mb-1">
-          <span id="importProgressStatus">جاري استيراد وتخزين الرواة...</span>
+          <span id="importProgressStatus">جاري الحفظ في المتصفح...</span>
           <span id="importProgressPercent">0%</span>
         </div>
         <div class="w-full bg-stone-200 rounded-full h-2.5 overflow-hidden">
@@ -494,7 +469,7 @@
 
       <div class="flex gap-2">
         <button id="btnStartImport" disabled class="flex-1 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs md:text-sm shadow transition disabled:opacity-50 disabled:cursor-not-allowed">
-          بدء الحفظ في المتصفح
+          بدء الحفظ
         </button>
         <button id="btnCancelImport" class="px-4 py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold rounded-xl text-xs transition">
           إلغاء
@@ -503,7 +478,7 @@
     </div>
   </div>
 
-  <!-- رسالة Toast التفاعلية العائمة -->
+  <!-- رسالة Toast -->
   <div id="toastMessage" class="fixed bottom-6 left-6 z-50 bg-stone-900 text-white px-5 py-3 rounded-xl shadow-2xl text-xs md:text-sm font-semibold opacity-0 pointer-events-none transform translate-y-3 flex items-center gap-2">
     <span id="toastIcon">ℹ️</span>
     <span id="toastText">تم تنفيذ الإجراء</span>
@@ -517,21 +492,14 @@
     </div>
   </footer>
 
-  <!-- ==================== المحرك البرمجي الأساسي (JavaScript) ==================== -->
+  <!-- ==================== محرك JavaScript المتطور ==================== -->
   <script>
-    /* ============================================================
-       1. قاعدة البيانات المدمجة الافتراضية (Core Fallback Dataset)
-       تحتوي على رواد سلاسل الذهب الكبرى وأئمة الكتب والمصنفات
-       ============================================================ */
     const CORE_NARRATORS = [
-      // الصحابة الكرام (الطبقة الأولى)
       { "رقم_تسلسلي": 1, "اسم_الراوي": "عبد الله بن عمر بن الخطاب", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "73 هـ", "الجرح_والتعديل": "صحابي جليل رضي الله عنه (مجمع على عدالته)", "الشيوخ": [] },
       { "رقم_تسلسلي": 2, "اسم_الراوي": "أبو هريرة عبد الرحمن بن صخر الدوسي", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "57 هـ", "الجرح_والتعديل": "صحابي جليل رضي الله عنه (حافظ الصحابة)", "الشيوخ": [] },
       { "رقم_تسلسلي": 3, "اسم_الراوي": "عبد الله بن مسعود الهذلي", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "32 هـ", "الجرح_والتعديل": "صحابي جليل رضي الله عنه (من السابقين الأولين)", "الشيوخ": [] },
       { "رقم_تسلسلي": 4, "اسم_الراوي": "أنس بن مالك الأنصاري", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "93 هـ", "الجرح_والتعديل": "صحابي جليل رضي الله عنه (خادم رسول الله)", "الشيوخ": [] },
       { "رقم_تسلسلي": 5, "اسم_الراوي": "عائشة بنت أبي بكر الصديق", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "58 هـ", "الجرح_والتعديل": "أم المؤمنين رضي الله عنها (فقيهة الأمة)", "الشيوخ": [] },
-
-      // كبار وأوساط التابعين (الطبقة الثانية والثالثة)
       { "رقم_تسلسلي": 10, "اسم_الراوي": "نافع مولى ابن عمر", "الطبقة": "الطبقة الثالثة - الوسطى من التابعين", "تاريخ_الوفاة": "117 هـ", "الجرح_والتعديل": "ثقة ثبت فقيه مشهور", "الشيوخ": [1, 2, 5] },
       { "رقم_تسلسلي": 11, "اسم_الراوي": "سالم بن عبد الله بن عمر", "الطبقة": "الطبقة الثالثة - الوسطى من التابعين", "تاريخ_الوفاة": "106 هـ", "الجرح_والتعديل": "ثقة ثبت فقيه عابد، أحد الفقهاء السبعة", "الشيوخ": [1, 2, 5] },
       { "رقم_تسلسلي": 12, "اسم_الراوي": "سعيد بن المسيب القرشي المخزومي", "الطبقة": "الطبقة الثانية - كبار التابعين", "تاريخ_الوفاة": "94 هـ", "الجرح_والتعديل": "سيد التابعين، ثقة ثبت فقيه حجة", "الشيوخ": [1, 2, 5] },
@@ -539,40 +507,21 @@
       { "رقم_تسلسلي": 14, "اسم_الراوي": "إبراهيم بن يزيد النخعي", "الطبقة": "الطبقة الخامسة - صغار التابعين", "تاريخ_الوفاة": "96 هـ", "الجرح_والتعديل": "ثقة فقيه ثبت إلا أنه يرسل", "الشيوخ": [13] },
       { "رقم_تسلسلي": 15, "اسم_الراوي": "أبو سلمة بن عبد الرحمن بن عوف", "الطبقة": "الطبقة الثالثة - الوسطى من التابعين", "تاريخ_الوفاة": "94 هـ", "الجرح_والتعديل": "ثقة حجة فقيه مجتهد", "الشيوخ": [2, 5] },
       { "رقم_تسلسلي": 16, "اسم_الراوي": "مجاهد بن جبر المكي", "الطبقة": "الطبقة الثالثة - الوسطى من التابعين", "تاريخ_الوفاة": "104 هـ", "الجرح_والتعديل": "ثقة إمام في التفسير والعلم", "الشيوخ": [1, 3] },
-      { "رقم_تسلسلي": 17, "اسم_الراوي": "قتادة بن دعامة السدوسي", "الطبقة": "الطبقة الرابعة - تلي الوسطى", "تاريخ_الوفاة": "117 هـ", "الجرح_والتعديل": "ثقة ثبت، يدلس (تعتبر عنعنته ما لم يصرح بالسماع)", "الشيوخ": [4] },
+      { "رقم_تسلسلي": 17, "اسم_الراوي": "قتادة بن دعامة السدوسي", "الطبقة": "الطبقة الرابعة - تلي الوسطى", "تاريخ_الوفاة": "117 هـ", "الجرح_والتعديل": "ثقة ثبت، يدلس", "الشيوخ": [4] },
       { "رقم_تسلسلي": 18, "اسم_الراوي": "سليمان بن مهران الأعمش", "الطبقة": "الطبقة الخامسة - صغار التابعين", "تاريخ_الوفاة": "148 هـ", "الجرح_والتعديل": "ثقة حافظ شيخ الإسلام، يدلس", "الشيوخ": [14] },
       { "رقم_تسلسلي": 19, "اسم_الراوي": "محمد بن مسلم بن شهاب الزهري", "الطبقة": "الطبقة الرابعة - تلي الوسطى", "تاريخ_الوفاة": "124 هـ", "الجرح_والتعديل": "الفقيه الحافظ، متفق على جلالته وإتقانه", "الشيوخ": [4, 11, 12, 15] },
-
-      // أتباع التابعين وأتباعهم (الطبقات السادسة إلى التاسعة)
       { "رقم_تسلسلي": 30, "اسم_الراوي": "مالك بن أنس بن مالك الأصبحي", "الطبقة": "الطبقة السابعة - كبار أتباع التابعين", "تاريخ_الوفاة": "179 هـ", "الجرح_والتعديل": "إمام دار الهجرة، رأس المتقنين وأثبت الناس", "الشيوخ": [10, 19] },
       { "رقم_تسلسلي": 31, "اسم_الراوي": "سفيان بن عيينة الهلالي", "الطبقة": "الطبقة الثامنة - أوساط أتباع التابعين", "تاريخ_الوفاة": "198 هـ", "الجرح_والتعديل": "ثقة حافظ فقيه إمام حجة", "الشيوخ": [18, 19] },
       { "رقم_تسلسلي": 32, "اسم_الراوي": "سفيان بن سعيد الثوري", "الطبقة": "الطبقة السابعة - كبار أتباع التابعين", "تاريخ_الوفاة": "161 هـ", "الجرح_والتعديل": "أمير المؤمنين في الحديث", "الشيوخ": [18, 19] },
       { "رقم_تسلسلي": 33, "اسم_الراوي": "شعبة بن الحجاج العتكي", "الطبقة": "الطبقة السابعة - كبار أتباع التابعين", "تاريخ_الوفاة": "160 هـ", "الجرح_والتعديل": "أمير المؤمنين في الحديث، ميزان الرجال", "الشيوخ": [17, 18] },
       { "رقم_تسلسلي": 34, "اسم_الراوي": "يحيى بن سعيد القطان", "الطبقة": "الطبقة التاسعة - صغار أتباع التابعين", "تاريخ_الوفاة": "198 هـ", "الجرح_والتعديل": "ثقة ثبت إمام جهبذ ناقد", "الشيوخ": [30, 32, 33] },
       { "رقم_تسلسلي": 35, "اسم_الراوي": "عبد الرحمن بن مهدي", "الطبقة": "الطبقة التاسعة - صغار أتباع التابعين", "تاريخ_الوفاة": "198 هـ", "الجرح_والتعديل": "إمام ثقة ثبت عارف بالرجال والعلل", "الشيوخ": [30, 32, 33] },
-      { "رقم_تسلسلي": 36, "اسم_الراوي": "عبد الله بن وهب القرشي", "الطبقة": "الطبقة التاسعة - صغار أتباع التابعين", "تاريخ_الوفاة": "197 هـ", "الجرح_والتعديل": "ثقة فقيه حافظ عابد", "الشيوخ": [30] },
-      { "رقم_تسلسلي": 37, "اسم_الراوي": "عبد الله بن المبارك المروزي", "الطبقة": "الطبقة الثامنة - أوساط أتباع التابعين", "تاريخ_الوفاة": "181 هـ", "الجرح_والتعديل": "الإمام الثقة الحافظ الجامع لخصال الخير", "الشيوخ": [30, 32] },
-
-      // كبار الآخذين وأصحاب الكتب (الطبقة العاشرة إلى الثانية عشرة)
       { "رقم_تسلسلي": 50, "اسم_الراوي": "محمد بن إدريس الشافعي", "الطبقة": "الطبقة التاسعة - صغار أتباع التابعين", "تاريخ_الوفاة": "204 هـ", "الجرح_والتعديل": "الإمام المطلبي صاحب المذهب، ثقة إمام حجة", "الشيوخ": [30, 31] },
       { "رقم_تسلسلي": 51, "اسم_الراوي": "أحمد بن محمد بن حنبل الشيباني", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "241 هـ", "الجرح_والتعديل": "إمام أهل السنة، ثقة ثبت حجة حافظ", "الشيوخ": [31, 34, 35, 50] },
       { "رقم_تسلسلي": 52, "اسم_الراوي": "عبد الله بن يوسف التنيسي", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "218 هـ", "الجرح_والتعديل": "ثقة متقن، أثبت الناس في موطأ مالك", "الشيوخ": [30] },
-      { "رقم_تسلسلي": 53, "اسم_الراوي": "إسماعيل بن أبي أويس المدني", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "226 هـ", "الجرح_والتعديل": "صدوق روى له الشيخان (ابن أخت مالك)", "الشيوخ": [30] },
-      { "رقم_تسلسلي": 54, "اسم_الراوي": "علي بن المديني", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "234 هـ", "الجرح_والتعديل": "إمام علل الحديث وعلم الرجال", "الشيوخ": [31, 34, 35] },
-      { "رقم_تسلسلي": 55, "اسم_الراوي": "يحيى بن معين البغدادي", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "233 هـ", "الجرح_والتعديل": "إمام الجرح والتعديل المشهور", "الشيوخ": [31, 34, 35] },
-
-      // أصحاب المصنفات والكتب المشهورة
-      { "رقم_تسلسلي": 60, "اسم_الراوي": "محمد بن إسماعيل البخاري", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "256 هـ", "الجرح_والتعديل": "أمير المؤمنين في الحديث، صاحب الجامع الصحيح", "الشيوخ": [51, 52, 53, 54] },
-      { "رقم_تسلسلي": 61, "اسم_الراوي": "مسلم بن الحجاج النيسابوري", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "261 هـ", "الجرح_والتعديل": "الإمام الحافظ الحجة صاحب المسند الصحيح", "الشيوخ": [51, 60] },
-      { "رقم_تسلسلي": 62, "اسم_الراوي": "أبو داود سليمان بن الأشعث السجستاني", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "275 هـ", "الجرح_والتعديل": "إمام أهل الحديث في عصره، صاحب السنن", "الشيوخ": [51, 55] },
-      { "رقم_تسلسلي": 63, "اسم_الراوي": "أبو عيسى محمد بن عيسى الترمذي", "الطبقة": "الطبقة الثانية عشرة - صغار الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "279 هـ", "الجرح_والتعديل": "الحافظ العلم صاحب الجامع والعلل", "الشيوخ": [60, 62] },
-      { "رقم_تسلسلي": 64, "اسم_الراوي": "أحمد بن شعيب النسائي", "الطبقة": "الطبقة الثانية عشرة - صغار الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "303 هـ", "الجرح_والتعديل": "إمام حافظ ناقد، شرطه في الرجال شديد", "الشيوخ": [51, 60, 62] },
-      { "رقم_تسلسلي": 65, "اسم_الراوي": "ابن ماجه محمد بن يزيد القزويني", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "273 هـ", "الجرح_والتعديل": "صاحب السنن المشهورة والتفسير", "الشيوخ": [51] }
+      { "رقم_تسلسلي": 60, "اسم_الراوي": "محمد بن إسماعيل البخاري", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "256 هـ", "الجرح_والتعديل": "أمير المؤمنين في الحديث، صاحب الجامع الصحيح", "الشيوخ": [51, 52] }
     ];
 
-    /* ============================================================
-       2. إدارة قاعدة بيانات المتصفح IndexedDB
-       ============================================================ */
     const DB_NAME = "HadithEncyclopediaDB";
     const DB_VERSION = 1;
     const STORE_NAME = "narrators";
@@ -583,19 +532,19 @@
 
     function openDatabase() {
       return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onupgradeneeded = (e) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
           const db = e.target.result;
           if (!db.objectStoreNames.contains(STORE_NAME)) {
             const store = db.createObjectStore(STORE_NAME, { keyPath: "رقم_تسلسلي" });
             store.createIndex("by_name", "اسم_الراوي", { unique: false });
           }
         };
-        request.onsuccess = (e) => {
+        req.onsuccess = (e) => {
           dbInstance = e.target.result;
           resolve(dbInstance);
         };
-        request.onerror = (e) => reject(e.target.error);
+        req.onerror = (e) => reject(e.target.error);
       });
     }
 
@@ -611,17 +560,18 @@
             activeNarratorsList = res;
             rebuildMap();
             updateDbStatusUI(true, res.length);
+            resolve(true); // قاعدة كاملة موجودة
           } else {
             activeNarratorsList = [...CORE_NARRATORS];
             rebuildMap();
             updateDbStatusUI(false, CORE_NARRATORS.length);
+            resolve(false); // قاعدة فارغة أو افتراضية
           }
-          resolve(activeNarratorsList);
         };
         req.onerror = () => {
           activeNarratorsList = [...CORE_NARRATORS];
           rebuildMap();
-          resolve(activeNarratorsList);
+          resolve(false);
         };
       });
     }
@@ -632,7 +582,6 @@
         const r = activeNarratorsList[i];
         narratorsMap.set(r["رقم_تسلسلي"], r);
       }
-      // تحديث شارات الإحصاء
       const countBadge = document.getElementById("encyclopediaCountBadge");
       if (countBadge) countBadge.textContent = activeNarratorsList.length.toLocaleString('ar-EG');
     }
@@ -650,7 +599,98 @@
     }
 
     /* ============================================================
-       3. إدارة التبويبات والملاحة (Tabs Navigation)
+       دالة الجلب التلقائي الذكي من GitHub (Auto-Cloud-Sync)
+       ============================================================ */
+    async function autoFetchFullDatabase() {
+      const banner = document.getElementById("cloudSyncBanner");
+      const bar = document.getElementById("cloudSyncBar");
+      const syncText = document.getElementById("cloudSyncText");
+
+      banner.classList.remove("hidden");
+      bar.style.width = "25%";
+
+      try {
+        syncText.textContent = "جاري تنزيل ملف الـ 24 ألف راوٍ من السحابة...";
+        const resp = await fetch('./rawis_clean.min.json');
+        if (!resp.ok) throw new Error(`تعذر جلب الملف (${resp.status})`);
+
+        bar.style.width = "60%";
+        syncText.textContent = "جاري فك وضبط بيانات الرواة...";
+        const rawData = await resp.json();
+
+        if (!Array.isArray(rawData) || rawData.length === 0) {
+          throw new Error("ملف البيانات غير صالح");
+        }
+
+        bar.style.width = "80%";
+        syncText.textContent = "جاري حفظ الرواة في المتصفح محلياً...";
+
+        await saveArrayToIndexedDB(rawData, (pct) => {
+          bar.style.width = `${80 + Math.floor(pct * 0.2)}%`;
+        });
+
+        // تم التثبيت بنجاح
+        bar.style.width = "100%";
+        syncText.textContent = `✅ تم تفعيل موسوعة الـ ${rawData.length.toLocaleString('ar-EG')} راوٍ بنجاح!`;
+
+        activeNarratorsList = rawData;
+        rebuildMap();
+        filteredNarrators = [...activeNarratorsList];
+        renderEncyclopedia();
+        renderTree(currentTreeRootId);
+        updateDbStatusUI(true, rawData.length);
+
+        setTimeout(() => {
+          banner.classList.add("hidden");
+          showToast(`تم تفعيل ${rawData.length.toLocaleString('ar-EG')} راوٍ في جهازك بنجاح!`, "🎉");
+        }, 1500);
+
+      } catch (err) {
+        console.warn("Auto-fetch notification:", err.message);
+        banner.classList.add("hidden");
+      }
+    }
+
+    function saveArrayToIndexedDB(dataArray, onProgress) {
+      return new Promise(async (resolve, reject) => {
+        if (!dbInstance) await openDatabase();
+
+        // مسح القديم
+        const clearTx = dbInstance.transaction(STORE_NAME, "readwrite");
+        clearTx.objectStore(STORE_NAME).clear();
+        clearTx.oncomplete = () => {
+          const total = dataArray.length;
+          const chunkSize = 3500;
+          let currentIdx = 0;
+
+          function nextChunk() {
+            if (currentIdx >= total) {
+              resolve();
+              return;
+            }
+            const tx = dbInstance.transaction(STORE_NAME, "readwrite");
+            const store = tx.objectStore(STORE_NAME);
+            const end = Math.min(currentIdx + chunkSize, total);
+
+            for (let i = currentIdx; i < end; i++) {
+              store.put(dataArray[i]);
+            }
+
+            tx.oncomplete = () => {
+              currentIdx = end;
+              if (onProgress) onProgress(currentIdx / total);
+              nextChunk();
+            };
+            tx.onerror = (e) => reject(e.target.error);
+          }
+
+          nextChunk();
+        };
+      });
+    }
+
+    /* ============================================================
+       إدارة التبويبات والمشجر ومحرك النقد
        ============================================================ */
     const tabButtons = document.querySelectorAll(".tab-btn");
     const tabContents = document.querySelectorAll(".tab-content");
@@ -658,7 +698,6 @@
     tabButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const targetId = btn.getAttribute("data-tab");
-        
         tabButtons.forEach(b => {
           b.classList.remove("active-tab", "bg-emerald-800", "text-amber-300");
           b.classList.add("text-emerald-100");
@@ -676,17 +715,11 @@
           }
         });
 
-        // إذا تم فتح تبويب المشجر يتم إعادة ضبط الخطوط
-        if (targetId === "tabTree") {
-          setTimeout(drawTreeConnectors, 80);
-        }
+        if (targetId === "tabTree") setTimeout(drawTreeConnectors, 80);
       });
     });
 
-    /* ============================================================
-       4. محرك المشجر التفاعلي (Interactive Tree Engine)
-       ============================================================ */
-    let currentTreeRootId = 60; // الإمام البخاري افتراضياً
+    let currentTreeRootId = 60;
     const treeLayersGrid = document.getElementById("treeLayersGrid");
     const treeSvgCanvas = document.getElementById("treeSvgCanvas");
     const treeRootInput = document.getElementById("treeRootNarratorInput");
@@ -702,20 +735,15 @@
       treeLayersGrid.innerHTML = "";
 
       const maxDepth = parseInt(selectTreeDepth.value, 10) || 3;
-      
-      // بناء هيكل الطبقات الصاعدة
-      const layersMap = new Map(); // depth level -> array of narrators
+      const layersMap = new Map();
       const visited = new Set();
 
       function collectAncestors(narrator, depth) {
         if (!narrator || depth > maxDepth) return;
         if (!layersMap.has(depth)) layersMap.set(depth, []);
         
-        // تفادي التكرار في نفس الطبقة
         const existing = layersMap.get(depth).some(item => item["رقم_تسلسلي"] === narrator["رقم_تسلسلي"]);
-        if (!existing) {
-          layersMap.get(depth).push(narrator);
-        }
+        if (!existing) layersMap.get(depth).push(narrator);
 
         const sheikhIds = narrator["الشيوخ"] || [];
         for (const sId of sheikhIds) {
@@ -728,8 +756,6 @@
       }
 
       collectAncestors(rootNarrator, 1);
-
-      // رسم الطبقات من الأدنى (الأساس) للأعلى (الشيوخ)
       const sortedDepths = Array.from(layersMap.keys()).sort((a, b) => a - b);
 
       sortedDepths.forEach(depth => {
@@ -737,13 +763,11 @@
         const layerRow = document.createElement("div");
         layerRow.className = "flex flex-col items-center";
 
-        // عنوان الطبقة
         const layerLabel = document.createElement("div");
         layerLabel.className = "text-xs font-bold text-stone-500 bg-stone-100 px-3 py-1 rounded-full mb-3 border border-stone-200";
         layerLabel.textContent = depth === 1 ? `الراوي الأساس: ${rootNarrator["اسم_الراوي"]}` : `طبقة الشيوخ (المستوى ${depth})`;
         layerRow.appendChild(layerLabel);
 
-        // بطاقات الرواة في هذه الطبقة
         const cardsWrapper = document.createElement("div");
         cardsWrapper.className = "flex flex-wrap justify-center gap-4 w-full";
 
@@ -756,7 +780,6 @@
         treeLayersGrid.appendChild(layerRow);
       });
 
-      // رسم الأسهم والروابط
       setTimeout(drawTreeConnectors, 100);
     }
 
@@ -828,7 +851,6 @@
             const endX = (tRect.left + tRect.width / 2) - rectSvg.left;
             const endY = tRect.bottom - rectSvg.top;
 
-            // رسم مسار انسيابي سلس (Cubic Bezier curve)
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
             const deltaY = Math.abs(startY - endY) * 0.5;
             const d = `M ${startX} ${startY} C ${startX} ${startY - deltaY}, ${endX} ${endY + deltaY}, ${endX} ${endY}`;
@@ -841,11 +863,8 @@
       });
     }
 
-    window.addEventListener("resize", () => {
-      setTimeout(drawTreeConnectors, 150);
-    });
+    window.addEventListener("resize", () => setTimeout(drawTreeConnectors, 150));
 
-    // البحث السريع في المشجر
     treeRootInput.addEventListener("input", (e) => {
       const q = e.target.value.trim().toLowerCase();
       if (q.length < 2) {
@@ -881,12 +900,12 @@
     });
 
     document.getElementById("btnResetTree").addEventListener("click", () => {
-      renderTree(60); // العودة للبخاري
+      renderTree(60);
       showToast("تمت استعادة المشجر الافتراضي");
     });
 
     /* ============================================================
-       5. محرك نقد الأسانيد وفحص الاتصال (Isnad Critic Engine)
+       محرك نقد الأسانيد
        ============================================================ */
     let currentChain = [
       { id: 60, formula: "حدثنا" },
@@ -952,10 +971,7 @@
         div.className = "px-3 py-1.5 hover:bg-emerald-50 cursor-pointer border-b border-stone-100 text-xs flex justify-between";
         div.innerHTML = `<span>${m["اسم_الراوي"]}</span> <span class="text-stone-400 font-mono">#${m["رقم_تسلسلي"]}</span>`;
         div.addEventListener("click", () => {
-          currentChain.push({
-            id: m["رقم_تسلسلي"],
-            formula: selectTahammul.value
-          });
+          currentChain.push({ id: m["رقم_تسلسلي"], formula: selectTahammul.value });
           chainNarratorSearch.value = "";
           chainSuggestionsBox.classList.add("hidden");
           renderChainBuilder();
@@ -994,7 +1010,6 @@
         const cur = currentChain[i];
         const rawi = narratorsMap.get(cur.id);
 
-        // إضافة البطاقة في السريان المرئي
         const chip = document.createElement("div");
         chip.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-stone-200 text-xs font-bold shadow-xs";
         chip.innerHTML = `<span>${rawi ? rawi["اسم_الراوي"] : '#' + cur.id}</span>`;
@@ -1005,13 +1020,11 @@
           const nextRawi = narratorsMap.get(next.id);
           const formula = cur.formula || "عن";
 
-          // التحقق من العلاقة بين التلميذ وشيخه
           const isSheikhInList = rawi && rawi["الشيوخ"] && rawi["الشيوخ"].includes(next.id);
           const isTadlees = (rawi && (rawi["الجرح_والتعديل"] || "").includes("يدلس")) && formula === "عن";
 
           if (isTadlees) hasTadlees = true;
           if (!isSheikhInList) {
-            // انقطاع محتمل
             hasBreak = true;
             issues.push({
               type: "danger",
@@ -1026,14 +1039,12 @@
             });
           }
 
-          // سهم الانتقال
           const arrow = document.createElement("div");
           arrow.className = `text-xs font-bold px-1 ${isTadlees ? 'text-amber-600' : isSheikhInList ? 'text-emerald-700' : 'text-red-600'}`;
           arrow.textContent = `← (${formula}) ←`;
           chainVisualFlow.appendChild(arrow);
         }
 
-        // فحص عدالة وضبط الراوي نفسه
         if (rawi) {
           const jarh = rawi["الجرح_والتعديل"] || "";
           if (jarh.includes("ضعيف") || jarh.includes("متروك") || jarh.includes("كذاب")) {
@@ -1047,7 +1058,6 @@
         }
       }
 
-      // تحديد الحكم الإجمالي
       if (hasBreak || hasWeakNarrator) {
         auditVerdictBadge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300";
         auditVerdictBadge.textContent = "إسناد فيه علة / منقطع أو ضعيف";
@@ -1059,7 +1069,6 @@
         auditVerdictBadge.textContent = "إسناد متصل صحيح رجاله ثقات";
       }
 
-      // عرض الملاحظات
       if (issues.length === 0) {
         auditDetailsList.innerHTML = `
           <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-medium flex items-center gap-2">
@@ -1079,7 +1088,7 @@
     }
 
     /* ============================================================
-       6. موسوعة الرواة والتصفح السلس (Encyclopedia & Pagination)
+       موسوعة الرواة والتصفح
        ============================================================ */
     let currentPage = 1;
     const PAGE_SIZE = 24;
@@ -1170,7 +1179,7 @@
     });
 
     /* ============================================================
-       7. سلاسل الذهب (Golden Chains)
+       سلاسل الذهب وطبقات ابن حجر
        ============================================================ */
     const GOLDEN_CHAINS = [
       {
@@ -1224,7 +1233,6 @@
         `;
 
         card.querySelector("button").addEventListener("click", () => {
-          // تحميل السلسلة بالمشجر
           const firstId = gc.narratorIds[0];
           document.querySelector('[data-tab="tabTree"]').click();
           renderTree(firstId);
@@ -1235,9 +1243,6 @@
       });
     }
 
-    /* ============================================================
-       8. جدول طبقات ابن حجر الإثنتي عشرة
-       ============================================================ */
     const IBN_HAJAR_LAYERS = [
       { num: "الأولى", title: "الصحابة رضي الله عنهم على اختلاف مراتبهم", era: "إلى سنة 110 هـ", scholars: "الخلفاء الأربعة، ابن عمر، ابن عباس، أبو هريرة، عائشة" },
       { num: "الثانية", title: "كبار التابعين (مخضرمون ومن أدرك الجاهلية)", era: "إلى سنة 95 هـ", scholars: "سعيد بن المسيب، علقمة بن قيس، قيس بن أبي حازم، الأسود" },
@@ -1270,7 +1275,7 @@
     }
 
     /* ============================================================
-       9. النافذة المنبثقة لترجمة الراوي (Detail Modal)
+       نافذة تفاصيل الراوي والاستيراد الاحتياطي
        ============================================================ */
     const narratorDetailModal = document.getElementById("narratorDetailModal");
     const btnCloseDetailModal = document.getElementById("btnCloseDetailModal");
@@ -1294,7 +1299,6 @@
       modalNarratorDeath.textContent = narrator["تاريخ_الوفاة"] || "غير مؤرخ بدقة";
       modalNarratorId.textContent = `#${narrator["رقم_تسلسلي"]}`;
 
-      // شيوخ الراوي
       modalNarratorTeachersList.innerHTML = "";
       const sheikhIds = narrator["الشيوخ"] || [];
       if (sheikhIds.length === 0) {
@@ -1315,9 +1319,7 @@
       narratorDetailModal.classList.remove("hidden");
     }
 
-    btnCloseDetailModal.addEventListener("click", () => {
-      narratorDetailModal.classList.add("hidden");
-    });
+    btnCloseDetailModal.addEventListener("click", () => narratorDetailModal.classList.add("hidden"));
     narratorDetailModal.addEventListener("click", (e) => {
       if (e.target === narratorDetailModal) narratorDetailModal.classList.add("hidden");
     });
@@ -1331,9 +1333,7 @@
       }
     });
 
-    /* ============================================================
-       10. استيراد موسوعة الـ 24 ألف راوٍ إلى IndexedDB
-       ============================================================ */
+    // استيراد يدوي احتياطي
     const importModal = document.getElementById("importModal");
     const btnOpenImportModal = document.getElementById("btnOpenImportModal");
     const btnCloseImportModal = document.getElementById("btnCloseImportModal");
@@ -1354,9 +1354,8 @@
     btnCancelImport.addEventListener("click", () => importModal.classList.add("hidden"));
 
     modalDropZone.addEventListener("click", () => modalFileInput.click());
-    modalFileInput.addEventListener("change", (e) => handleImportFileSelect(e.target.files[0]));
-
-    function handleImportFileSelect(file) {
+    modalFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
       if (!file || !file.name.endsWith(".json")) {
         showToast("يرجى اختيار ملف JSON فقط", "⚠️");
         return;
@@ -1364,11 +1363,10 @@
       importFileTarget = file;
       modalFileNameLabel.textContent = `الملف المختار: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
       btnStartImport.disabled = false;
-    }
+    });
 
     btnStartImport.addEventListener("click", () => {
       if (!importFileTarget) return;
-
       btnStartImport.disabled = true;
       importProgressBarContainer.classList.remove("hidden");
       importProgressBar.style.width = "20%";
@@ -1378,10 +1376,6 @@
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
-          importProgressBar.style.width = "40%";
-          importProgressPercent.textContent = "40%";
-          importProgressStatus.textContent = "جاري فك الترميز وهيكلة البيانات...";
-
           let rawData = JSON.parse(e.target.result);
           if (!Array.isArray(rawData) && typeof rawData === "object") {
             for (const k of ["narrators", "rawis", "data", "الرواة"]) {
@@ -1392,85 +1386,32 @@
             }
           }
 
-          if (!Array.isArray(rawData) || rawData.length === 0) {
-            throw new Error("الملف لا يحتوي على مصفوفة رواة صحيحة");
-          }
-
-          // الحفظ في IndexedDB عبر معاملات متتالية ومستقرة لتفادي إغلاق المعاملة (Auto-Commit)
-          if (!dbInstance) await openDatabase();
-          
-          // 1. تفريغ البيانات السابقة أولاً
-          await new Promise((resolve, reject) => {
-            const clearTx = dbInstance.transaction(STORE_NAME, "readwrite");
-            const clearStore = clearTx.objectStore(STORE_NAME);
-            const req = clearStore.clear();
-            req.onsuccess = () => resolve();
-            req.onerror = () => reject(req.error);
+          await saveArrayToIndexedDB(rawData, (pct) => {
+            const p = Math.floor(pct * 100);
+            importProgressBar.style.width = `${p}%`;
+            importProgressPercent.textContent = `${p}%`;
+            importProgressStatus.textContent = `تم حفظ ${Math.floor(pct * rawData.length).toLocaleString('ar-EG')} راوٍ...`;
           });
 
-          const total = rawData.length;
-          const chunkSize = 3000; // رفع حجم الدفعة لسرعة فائقة
-          let currentIdx = 0;
+          activeNarratorsList = rawData;
+          rebuildMap();
+          filteredNarrators = [...activeNarratorsList];
+          renderEncyclopedia();
+          renderTree(currentTreeRootId);
+          updateDbStatusUI(true, rawData.length);
 
-          function saveNextChunk() {
-            if (currentIdx >= total) {
-              // اكتمال تخزين جميع الرواة بنجاح
-              importProgressBar.style.width = "100%";
-              importProgressPercent.textContent = "100%";
-              importProgressStatus.textContent = "✅ اكتمل الاستيراد والتخزين بنجاح!";
-              
-              activeNarratorsList = rawData;
-              rebuildMap();
-              filteredNarrators = [...activeNarratorsList];
-              renderEncyclopedia();
-              renderTree(currentTreeRootId);
-              updateDbStatusUI(true, rawData.length);
-
-              setTimeout(() => {
-                importModal.classList.add("hidden");
-                showToast(`تم استيراد ${rawData.length.toLocaleString('ar-EG')} راوٍ وتفعيل الموسوعة كاملة!`, "🎉");
-              }, 800);
-              return;
-            }
-
-            const tx = dbInstance.transaction(STORE_NAME, "readwrite");
-            const store = tx.objectStore(STORE_NAME);
-            const end = Math.min(currentIdx + chunkSize, total);
-
-            for (let i = currentIdx; i < end; i++) {
-              store.put(rawData[i]);
-            }
-
-            tx.oncomplete = () => {
-              currentIdx = end;
-              const pct = Math.floor(40 + (currentIdx / total) * 58);
-              importProgressBar.style.width = `${pct}%`;
-              importProgressPercent.textContent = `${pct}%`;
-              importProgressStatus.textContent = `تم تخزين ${currentIdx.toLocaleString('ar-EG')} من ${total.toLocaleString('ar-EG')} راوٍ...`;
-              
-              // الانتقال للدفعة التالية فور تأكيد المتصفح نجاح الحفظ
-              saveNextChunk();
-            };
-
-            tx.onerror = (err) => {
-              throw new Error("خطأ أثناء حفظ الدفعة: " + (err.target.error ? err.target.error.message : ""));
-            };
-          }
-
-          saveNextChunk();
-
+          setTimeout(() => {
+            importModal.classList.add("hidden");
+            showToast(`تم تفعيل الموسوعة (${rawData.length.toLocaleString('ar-EG')} راوٍ)`, "🎉");
+          }, 600);
         } catch (err) {
-          importProgressStatus.textContent = "❌ خطأ في القراءة أو التخزين: " + err.message;
+          importProgressStatus.textContent = "❌ خطأ في القراءة: " + err.message;
           btnStartImport.disabled = false;
         }
       };
-
       reader.readAsText(importFileTarget, "utf-8");
     });
 
-    /* ============================================================
-       11. دوال مساعدة عامة وتنبيهات
-       ============================================================ */
     function debounce(func, wait) {
       let timeout;
       return function(...args) {
@@ -1493,24 +1434,29 @@
     }
 
     /* ============================================================
-       12. تهيئة وتشغيل المنصة عند فتح الصفحة
+       التهيئة الذكية عند فتح الصفحة
        ============================================================ */
     window.addEventListener("DOMContentLoaded", async () => {
-      // 1. فحص هل يوجد بيانات مخزنة مسبقاً في المتصفح
+      let hasData = false;
       try {
-        await loadDataFromIndexedDB();
+        hasData = await loadDataFromIndexedDB();
       } catch (e) {
         rebuildMap();
       }
 
-      // 2. رسم المكونات المبدئية
-      renderTree(60); // البخاري
+      renderTree(60);
       renderChainBuilder();
       renderEncyclopedia();
       renderGoldenChains();
       renderIbnHajarTable();
 
-      showToast("مرحباً بك في مشجر طبقات الرواة", "📜");
+      // إذا كانت الزيارة الأولى وقاعدة البيانات لا تزال على الـ 25 راوٍ الافتراضي:
+      // يقوم تلقائياً بطلب وسحب الـ 24 ألف راوٍ من ملف rawis_clean.min.json المرفوع على GitHub!
+      if (!hasData) {
+        autoFetchFullDatabase();
+      } else {
+        showToast("مرحباً بك في مشجر طبقات الرواة", "📜");
+      }
     });
   </script>
 </body>
