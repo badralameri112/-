@@ -1,824 +1,408 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مشجّر طبقات الرواة ومحرك نقد الأسانيد الحديثية | أداة طالب العلم</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مشجّر طبقات الرواة ومحرك نقد الأسانيد الحديثية</title>
   
-  <!-- Tailwind CSS CDN -->
+  <!-- مكتبة Tailwind CSS للتنسيق الحديث -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Google Arabic Fonts -->
+  <!-- الخطوط العربية التراثية الأصيلة -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg-parchment: #faf7f0;
-      --emerald-deep: #064e3b;
-      --emerald-mid: #047857;
+      --primary-emerald: #064e3b;
+      --secondary-emerald: #047857;
       --gold-accent: #b45309;
+      --bg-parchment: #fcfbf7;
     }
+    
     body {
-      font-family: 'Tajawal', 'Inter', sans-serif;
-      background-color: var(--bg-parchment);
-      color: #1e293b;
-      overflow-x: hidden;
+      font-family: 'Tajawal', sans-serif;
+      background-color: #f7f5ef;
+      color: #1f2937;
     }
+    
     .font-amiri {
       font-family: 'Amiri', serif;
     }
-    /* Scrollbars */
+
+    /* خلفية المخطوطة التراثية */
+    .bg-pattern {
+      background-color: #fcfbf7;
+      background-image: radial-gradient(#d5caa9 0.75px, transparent 0.75px);
+      background-size: 18px 18px;
+    }
+
+    /* شريط التمرير المخصص الأنيق */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: #f1ede4;
+      background: #f1ede2;
     }
     ::-webkit-scrollbar-thumb {
       background: #047857;
-      border-radius: 9999px;
+      border-radius: 4px;
     }
-    .islamic-pattern {
-      background-color: #064e3b;
-      background-image: radial-gradient(rgba(245, 158, 11, 0.15) 1px, transparent 1px), radial-gradient(rgba(245, 158, 11, 0.1) 1px, #064e3b 1px);
-      background-size: 28px 28px;
-      background-position: 0 0, 14px 14px;
+    ::-webkit-scrollbar-thumb:hover {
+      background: #064e3b;
     }
-    .node-card {
-      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* أنماط الشجرة التفاعلية */
+    .tree-node {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .node-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(6, 78, 59, 0.12);
+    .tree-node:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 10px 20px -5px rgba(6, 78, 59, 0.2);
     }
-    .edge-path {
-      transition: stroke 0.3s ease, stroke-width 0.3s ease, opacity 0.3s ease;
+    
+    .isnad-line {
+      stroke: #047857;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      fill: none;
+      transition: stroke 0.3s;
     }
-    @keyframes pulseGlow {
-      0%, 100% { filter: drop-shadow(0 0 3px rgba(217, 119, 6, 0.6)); }
-      50% { filter: drop-shadow(0 0 8px rgba(217, 119, 6, 0.95)); }
+    .isnad-line.broken {
+      stroke: #dc2626;
+      stroke-dasharray: 6 4;
     }
-    .golden-glow {
-      animation: pulseGlow 2.2s infinite;
+    .isnad-line.tadlees {
+      stroke: #d97706;
+      stroke-dasharray: 4 4;
     }
-    @media print {
-      header, .no-print {
-        display: none !important;
-      }
-      body {
-        background: #ffffff !important;
-      }
-      .print-card {
-        border: 1px solid #cbd5e1 !important;
-        box-shadow: none !important;
-      }
+
+    /* حركة الإشعار التفاعلي Toast */
+    #toastMessage {
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-emerald-800 selection:text-amber-100">
 
-  <!-- Top Sticky Scholarly Header -->
-  <header class="islamic-pattern text-white shadow-lg border-b-2 border-amber-500/40 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 shadow-inner text-xl">
-          <span>📜</span>
+<body class="bg-pattern min-h-screen flex flex-col justify-between selection:bg-emerald-800 selection:text-white">
+
+  <!-- ==================== الشريط العلوي والتنقل ==================== -->
+  <header class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-stone-900 text-white shadow-xl border-b border-emerald-800/60 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- هوية المنصة والشعار -->
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-emerald-700 flex items-center justify-center shadow-lg border border-amber-300/30">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold font-amiri tracking-wide text-amber-200">
+              مشجّر طبقات الرواة
+            </h1>
+            <p class="text-xs text-emerald-200 hidden sm:block">
+              محرك نقد الأسانيد وبناء المشجرات لرجال الكتب التسعة
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-lg md:text-xl font-black tracking-wide flex items-center gap-2">
-            <span>مشجّر طبقات الرواة ومحرك نقد الأسانيد</span>
-            <span class="text-xs bg-amber-500/30 text-amber-200 border border-amber-400/40 px-2.5 py-0.5 rounded-full font-bold">إصدار طالب العلم</span>
-          </h1>
-          <p class="text-xs text-emerald-100/90 mt-0.5">منصة متكاملة: تصفح المتون، فحص اتصال الأسانيد آلياً، مشجر الطبقات، وموسوعة رجال الكتب التسعة</p>
+
+        <!-- أزرار الإجراءات وحالة قاعدة البيانات -->
+        <div class="flex items-center gap-3">
+          <!-- شارة حالة قاعدة البيانات المدمجة أو المستوردة -->
+          <div id="dbStatusBadge" class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-800/80 border border-emerald-600/50 text-xs text-emerald-100 font-medium">
+            <span id="dbStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="dbStatusText">جاري تهيئة الرواة...</span>
+          </div>
+
+          <!-- زر فتح نافذة استيراد الموسوعة 24 ألف راوٍ -->
+          <button id="btnOpenImportModal" class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs md:text-sm font-bold flex items-center gap-1.5 shadow transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            <span class="hidden md:inline">استيراد ملف الموسوعة</span>
+            <span class="md:hidden">استيراد</span>
+          </button>
         </div>
+
       </div>
 
-      <div class="flex items-center gap-2">
-        <button id="btnOpenAddModal" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-sm transition">
-          <span>➕</span>
-          <span>إضافة راوٍ للشجرة</span>
+      <!-- تبويبات النظام الرئيسية -->
+      <nav class="flex space-x-1 space-x-reverse overflow-x-auto pb-2 scrollbar-none border-t border-emerald-800/40 pt-2 text-sm font-semibold">
+        <button data-tab="tabTree" class="tab-btn px-4 py-2 rounded-lg text-emerald-100 hover:bg-emerald-800/60 transition flex items-center gap-2 whitespace-nowrap active-tab bg-emerald-800 text-amber-300">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+          ١. المشجر التفاعلي
         </button>
-        <button id="btnExportFullData" class="px-3 py-2 rounded-xl bg-emerald-800/90 hover:bg-emerald-700 text-emerald-100 border border-emerald-500/40 text-xs flex items-center gap-1.5 transition">
-          <span>💾</span>
-          <span>تصدير البيانات</span>
+        <button data-tab="tabCritic" class="tab-btn px-4 py-2 rounded-lg text-emerald-100 hover:bg-emerald-800/60 transition flex items-center gap-2 whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          ٢. محرك نقد الأسانيد
         </button>
-      </div>
-    </div>
-
-    <!-- Navigation Bar with Distinct Badges -->
-    <div class="bg-emerald-950/80 border-t border-emerald-800/80 backdrop-blur-xs">
-      <div class="max-w-7xl mx-auto px-4 flex items-center gap-1.5 overflow-x-auto py-1.5 no-scrollbar">
-        <button data-tab="takhrij" class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1.5 shrink-0 transition">
-          <span>📜</span>
-          <span>1. مكتبة المتون والتخريج</span>
+        <button data-tab="tabEncyclopedia" class="tab-btn px-4 py-2 rounded-lg text-emerald-100 hover:bg-emerald-800/60 transition flex items-center gap-2 whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          ٣. موسوعة الرواة
         </button>
-        <button data-tab="analyzer" class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-bold text-emerald-100 hover:bg-emerald-800/70 flex items-center gap-1.5 shrink-0 transition">
-          <span>🔬</span>
-          <span>2. محرك كشف العلل والاتصال</span>
+        <button data-tab="tabGoldenChains" class="tab-btn px-4 py-2 rounded-lg text-emerald-100 hover:bg-emerald-800/60 transition flex items-center gap-2 whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+          ٤. سلاسل الذهب
         </button>
-        <button data-tab="tree" class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium text-emerald-100 hover:bg-emerald-800/70 flex items-center gap-1.5 shrink-0 transition">
-          <span>🌳</span>
-          <span>3. المشجّر التفاعلي</span>
+        <button data-tab="tabIbnHajarLayers" class="tab-btn px-4 py-2 rounded-lg text-emerald-100 hover:bg-emerald-800/60 transition flex items-center gap-2 whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+          ٥. طبقات ابن حجر (١٢ طبقة)
         </button>
-        <button data-tab="encyclopedia" class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium text-emerald-100 hover:bg-emerald-800/70 flex items-center gap-1.5 shrink-0 transition">
-          <span>📚</span>
-          <span>4. موسوعة الرواة (الكتب التسعة)</span>
-        </button>
-        <button data-tab="chains" class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium text-emerald-100 hover:bg-emerald-800/70 flex items-center gap-1.5 shrink-0 transition">
-          <span>✨</span>
-          <span>5. سلاسل الذهب</span>
-        </button>
-        <button data-tab="layers" class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium text-emerald-100 hover:bg-emerald-800/70 flex items-center gap-1.5 shrink-0 transition">
-          <span>🏛️</span>
-          <span>6. طبقات ابن حجر وأمهات الكتب</span>
-        </button>
-      </div>
+      </nav>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5 space-y-5">
+  <!-- ==================== المحتوى الرئيسي ==================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-grow">
 
-    <!-- ================================================================= -->
-    <!-- TAB 1: TAKHRIJ & HADITH TEXTS WORKSTATION (مكتبة المتون والتخريج) -->
-    <!-- ================================================================= -->
-    <section id="tab-takhrij" class="tab-panel space-y-4">
+    <!-- ----------------- التبويب الأول: المشجر التفاعلي ----------------- -->
+    <section id="tabTree" class="tab-content block">
       
-      <!-- Quick Info Banner -->
-      <div class="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 text-white rounded-2xl p-5 shadow-sm border border-emerald-800/80">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div class="space-y-1.5">
-            <div class="flex items-center gap-2">
-              <span class="p-2 rounded-xl bg-amber-500/20 text-amber-300 text-xl font-bold">📜</span>
-              <h2 class="text-base sm:text-lg font-bold">مكتبة متون الأحاديث النبوية وتخريج الأسانيد</h2>
-              <span class="bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 text-[10px] px-2 py-0.5 rounded-full font-bold">الخطوة 1: اختيار المتن</span>
+      <!-- شريط أدوات المشجر -->
+      <div class="bg-white rounded-2xl shadow-md border border-stone-200 p-4 mb-6">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+          
+          <!-- اختيار الراوي الأساسي للمشجر -->
+          <div class="w-full lg:w-1/2 flex items-center gap-2">
+            <label for="treeRootNarratorInput" class="text-sm font-bold text-gray-700 whitespace-nowrap">الراوي المستهدف:</label>
+            <div class="relative w-full">
+              <input type="text" id="treeRootNarratorInput" placeholder="ابحث باسم الراوي (مثلاً: مالك، البخاري، الزهري)..." 
+                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200 outline-none text-sm transition">
+              <!-- قائمة الاقتراحات السريعة -->
+              <div id="treeSuggestionsBox" class="hidden absolute top-full right-0 w-full bg-white rounded-xl shadow-2xl border border-stone-200 mt-1 max-h-60 overflow-y-auto z-30"></div>
             </div>
-            <p class="text-xs text-emerald-100/90 max-w-3xl leading-relaxed">
-              اختر أي حديث نبوي شريف من صحيح البخاري والكتب التسعة لاستعراض سنده برجاله وصيغ أدائه، أو أضف رجال إسناد مخصصين، ثم اضغط على <strong class="text-amber-300 font-bold">«فحص هذا الحديث في محرك كشف العلل»</strong> للتحقق الفوري من الاتصال والعلل الخفية.
-            </p>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button id="btnSendCurrentToIllahEngine" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
-              <span>🔬</span>
-              <span>فحص هذا السند في محرك العلل ↗</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
-      <!-- Presets Carousel -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-stone-200/90 space-y-2">
-        <div class="flex items-center justify-between text-xs font-bold text-stone-700">
-          <span>متون نموذجية معتمدة من كتب السنة (انقر لتحميل المتن وسنده):</span>
-          <span class="text-stone-400 font-normal">صحيح البخاري والسنن</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-          <button type="button" data-takhrij-preset="niyyat" class="p-3 rounded-xl bg-amber-50/70 hover:bg-amber-100/90 text-stone-800 border border-amber-200 text-right transition flex flex-col justify-between gap-1">
-            <div class="flex items-center justify-between w-full text-[10px] text-amber-900 font-bold">
-              <span>صحيح البخاري (ح 1)</span>
-              <span class="bg-amber-200/80 px-1.5 rounded">بدء الوحي</span>
-            </div>
-            <div class="font-bold font-amiri text-xs text-stone-900 line-clamp-2">«إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ...»</div>
-            <div class="text-[10px] text-stone-500">الحميدي عن ابن عيينة عن يحيى</div>
-          </button>
-
-          <button type="button" data-takhrij-preset="bunya" class="p-3 rounded-xl bg-emerald-50/70 hover:bg-emerald-100/90 text-stone-800 border border-emerald-200 text-right transition flex flex-col justify-between gap-1">
-            <div class="flex items-center justify-between w-full text-[10px] text-emerald-900 font-bold">
-              <span>صحيح البخاري (ح 8)</span>
-              <span class="bg-emerald-200/80 px-1.5 rounded">سلسلة الذهب</span>
-            </div>
-            <div class="font-bold font-amiri text-xs text-stone-900 line-clamp-2">«بُنِيَ الإِسْلاَمُ عَلَى خَمْسٍ...»</div>
-            <div class="text-[10px] text-stone-500">مالك عن نافع عن ابن عمر</div>
-          </button>
-
-          <button type="button" data-takhrij-preset="khalimatani" class="p-3 rounded-xl bg-teal-50/70 hover:bg-teal-100/90 text-stone-800 border border-teal-200 text-right transition flex flex-col justify-between gap-1">
-            <div class="flex items-center justify-between w-full text-[10px] text-teal-900 font-bold">
-              <span>صحيح البخاري (ح 7563)</span>
-              <span class="bg-teal-200/80 px-1.5 rounded">خاتمة الصحيح</span>
-            </div>
-            <div class="font-bold font-amiri text-xs text-stone-900 line-clamp-2">«كَلِمَتَانِ حَبِيبَتَانِ إِلَى الرَّحْمَنِ...»</div>
-            <div class="text-[10px] text-stone-500">أحمد بن إشكاب عن أبي زرعة</div>
-          </button>
-
-          <button type="button" data-takhrij-preset="tadlis_case" class="p-3 rounded-xl bg-rose-50/70 hover:bg-rose-100/90 text-stone-800 border border-rose-200 text-right transition flex flex-col justify-between gap-1">
-            <div class="flex items-center justify-between w-full text-[10px] text-rose-900 font-bold">
-              <span>اختبار علل التدليس</span>
-              <span class="bg-rose-200/80 px-1.5 rounded">فحص نقدي</span>
-            </div>
-            <div class="font-bold font-amiri text-xs text-stone-900 line-clamp-2">عنعنة قتادة بن دعامة (مدلس)</div>
-            <div class="text-[10px] text-stone-500">كشف التدليس والعنعنة آلياً</div>
-          </button>
-        </div>
-      </div>
-
-      <!-- Hadith Details & Chain Builder -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-stone-200/90 space-y-4">
-        
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
-          <div class="md:col-span-6">
-            <label class="block font-bold text-stone-700 mb-1">متن الحديث النبوي الشريف:</label>
-            <textarea id="takhrijMatnInput" rows="3" class="w-full rounded-xl border border-stone-300 p-2.5 bg-stone-50/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600 font-amiri text-sm leading-relaxed" placeholder="اكتب أو الصق متن الحديث النبوي..."></textarea>
-          </div>
-          <div class="md:col-span-3">
-            <label class="block font-bold text-stone-700 mb-1">المصدر الأصلي المخرِّج:</label>
-            <input id="takhrijSourceBookInput" type="text" class="w-full rounded-xl border border-stone-300 px-3 py-2 bg-stone-50/60 focus:bg-white" placeholder="مثال: صحيح البخاري (ح 1)" />
-            <label class="block font-bold text-stone-700 mt-2 mb-1">مدار الحديث (الراوي المجمع عليه):</label>
-            <input id="takhrijMadarInput" type="text" class="w-full rounded-xl border border-stone-300 px-3 py-2 bg-stone-50/60 focus:bg-white" placeholder="مثال: يحيى بن سعيد الأنصاري" />
-          </div>
-          <div class="md:col-span-3">
-            <label class="block font-bold text-stone-700 mb-1">المتابعات والشواهد (من تحفة الأشراف):</label>
-            <textarea id="takhrijMutabaatInput" rows="3" class="w-full rounded-xl border border-stone-300 p-2.5 bg-stone-50/60 focus:bg-white text-xs leading-relaxed" placeholder="أخرجه مسلم وأصحاب السنن من طريق..."></textarea>
-          </div>
-        </div>
-
-        <!-- Add Narrator Chain Step -->
-        <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/90 space-y-2.5">
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-emerald-950">إضافة حلقة إلى سلسلة السند (من المصنِّف إلى الصحابي):</span>
-            <button type="button" id="btnClearTakhrijSteps" class="text-rose-700 hover:underline font-bold text-[11px]">إفراغ السند</button>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end text-xs">
-            <div class="sm:col-span-3">
-              <label class="block font-semibold text-stone-600 mb-1">صيغة التحمل والأداء:</label>
-              <select id="takhrijSighahSelect" class="w-full rounded-lg border border-stone-300 bg-white px-2.5 py-2 font-bold text-emerald-950 text-xs">
-                <option value="حدثنا">حدثنا (سماع صريح من لفظ الشيخ)</option>
-                <option value="أخبرنا">أخبرنا (قراءة وعرض على الشيخ)</option>
-                <option value="سمعت">سمعتُ (أعلى صيغ السماع الصريح)</option>
-                <option value="عن">عن (عنعنة — يُفحص التدليس واللقيا)</option>
-                <option value="أن">أنّ فلاناً قال (حكمها حكم العنعنة)</option>
-                <option value="قال">قال فلان (يُفحص السماع والتعليق)</option>
-                <option value="بلغني عن">بلغني / ذُكر عن (بلاغ منقطع ظاهر)</option>
+          <!-- خيارات العمق وطريقة العرض -->
+          <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
+            <div class="flex items-center gap-2 text-xs font-semibold text-gray-600 bg-stone-100 px-3 py-2 rounded-xl">
+              <span>عمق الشيوخ:</span>
+              <select id="selectTreeDepth" class="bg-white border border-stone-300 rounded px-2 py-1 outline-none">
+                <option value="2">طبقتين صاعدتين</option>
+                <option value="3" selected>٣ طبقات صاعدة</option>
+                <option value="4">٤ طبقات صاعدة</option>
               </select>
             </div>
-            <div class="sm:col-span-5">
-              <label class="block font-semibold text-stone-600 mb-1">اختر الراوي من المشجّر:</label>
-              <select id="takhrijNarratorSelect" class="w-full rounded-lg border border-stone-300 bg-white px-2.5 py-2 text-xs"></select>
+
+            <button id="btnRenderTree" class="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow transition flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              تحديث المشجر
+            </button>
+
+            <button id="btnResetTree" class="px-4 py-2.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-gray-700 font-bold text-sm transition">
+              إعادة ضبط
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- مساحة رسم المشجر وشبكة الطبقات -->
+      <div class="bg-white rounded-2xl shadow-xl border border-stone-200 p-6 min-h-[550px] relative overflow-hidden">
+        
+        <!-- مفاتيح المشجر -->
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3 mb-6 text-xs text-gray-600 font-medium">
+          <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span> صحابي جليل</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> ثقة ثبت / حجة</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> صدوق / مدلس</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-600 inline-block"></span> ضعيف / متروك</span>
+          </div>
+          <span class="text-stone-400">انقر فوق بطاقة أي راوٍ لعرض ترجمته الكاملة وشيوخه</span>
+        </div>
+
+        <!-- حاوية الرسم المتجاوبة مع SVG Connectors -->
+        <div id="treeContainer" class="relative w-full overflow-x-auto min-w-[700px] pb-12">
+          <svg id="treeSvgCanvas" class="absolute top-0 right-0 w-full h-full pointer-events-none z-0"></svg>
+          <div id="treeLayersGrid" class="flex flex-col-reverse gap-10 relative z-10">
+            <!-- تتولى دالة renderTree() رسم الطبقات هنا ديناميكياً -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ----------------- التبويب الثاني: محرك نقد الأسانيد ----------------- -->
+    <section id="tabCritic" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- لوحة تشييد السند -->
+        <div class="lg:col-span-1 bg-white rounded-2xl shadow-md border border-stone-200 p-5">
+          <h3 class="text-lg font-bold font-amiri text-emerald-950 mb-2 flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            بناء سلسلة السند المفحوص
+          </h3>
+          <p class="text-xs text-gray-500 mb-4">
+            أضف الرواة بالترتيب من أدنى السند (المصنف) صعوداً إلى منتهاه (الصحابي):
+          </p>
+
+          <!-- قائمة الرواة المضافين للسند -->
+          <div id="chainBuilderList" class="space-y-3 mb-5 min-h-[160px] bg-stone-50 p-3 rounded-xl border border-stone-200">
+            <!-- تضاف الرواة هنا -->
+          </div>
+
+          <!-- نموذج إضافة راوٍ للسلسلة -->
+          <div class="space-y-3 border-t border-stone-200 pt-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">صيغة الأداء والتحمل:</label>
+              <select id="selectTahammul" class="w-full text-xs px-3 py-2 rounded-lg border border-stone-300 bg-white">
+                <option value="حدثنا">حدثنا (سماع صريح جمعاً)</option>
+                <option value="أخبرنا">أخبرنا (عرض وقراءة)</option>
+                <option value="سمعت">سمعت (أعلى مراتب السماع الفردي)</option>
+                <option value="عن">عن (عنعنة - تتطلب ثبوت اللقاء وسلامة من التدليس)</option>
+                <option value="قال">قال (صيغة تحتمل الانقطاع)</option>
+              </select>
             </div>
-            <div class="sm:col-span-2">
-              <label class="block font-semibold text-stone-600 mb-1">أو راوٍ خارجي:</label>
-              <input id="takhrijCustomNarratorName" type="text" placeholder="اسم الراوي ووفاته" class="w-full rounded-lg border border-stone-300 bg-white px-2.5 py-2 text-xs" />
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">الراوي:</label>
+              <div class="relative">
+                <input type="text" id="chainNarratorSearch" placeholder="ابحث باسم الراوي لإضافته..."
+                  class="w-full text-xs px-3 py-2 rounded-lg border border-stone-300 focus:border-emerald-600 outline-none">
+                <div id="chainSuggestionsBox" class="hidden absolute top-full right-0 w-full bg-white rounded-lg shadow-xl border border-stone-200 mt-1 max-h-48 overflow-y-auto z-20"></div>
+              </div>
             </div>
-            <div class="sm:col-span-2">
-              <button type="button" id="btnAddTakhrijStep" class="w-full py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-xs text-xs transition">
-                + أضف للإسناد
+
+            <div class="flex gap-2 pt-2">
+              <button id="btnRunAudit" class="flex-1 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs md:text-sm shadow transition flex items-center justify-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                نقد وفحص السند
+              </button>
+              <button id="btnClearChain" class="px-3 py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold rounded-xl text-xs transition">
+                تفريغ
               </button>
             </div>
           </div>
+
         </div>
 
-      </div>
-
-      <!-- Printable & Formatted Takhrij Card -->
-      <div id="takhrijPrintableSheet" class="print-card bg-white rounded-2xl p-5 sm:p-6 shadow-sm border-2 border-emerald-900/15 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-stone-100 pb-3.5">
+        <!-- لوحة نتائج فحص الاتصال والانقطاع والعلل -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-md border border-stone-200 p-6 flex flex-col justify-between">
           <div>
-            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">بطاقة تحرير السند وتخريجه</span>
-            <h3 id="sheetMatnTitle" class="text-base sm:text-lg font-bold text-emerald-950 font-amiri mt-1 leading-relaxed"></h3>
-            <p id="sheetSourceSubtitle" class="text-xs font-semibold text-amber-800 mt-0.5"></p>
-          </div>
-          <div class="flex items-center gap-2 no-print">
-            <button type="button" id="btnCopyTakhrijMarkdown" class="px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition">
-              <span>📋 نسخ البطاقة (Markdown)</span>
-            </button>
-            <button type="button" id="btnPrintTakhrijSheet" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition">
-              <span>🖨️ طباعة / حفظ PDF</span>
-            </button>
-          </div>
-        </div>
+            <div class="flex items-center justify-between border-b border-stone-200 pb-3 mb-4">
+              <h3 class="text-xl font-bold font-amiri text-stone-900">
+                تقرير علل الإسناد والحكم النهائي
+              </h3>
+              <span id="auditVerdictBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-stone-100 text-stone-600">
+                بانتظار إجراء الفحص
+              </span>
+            </div>
 
-        <!-- Visual Flow of the Sanad -->
-        <div class="space-y-1.5">
-          <div class="text-xs font-bold text-stone-600">سياق الإسناد المتصل وصيغ الأداء:</div>
-          <div id="sheetChainVisualFlow" class="flex flex-wrap items-center gap-1.5 p-3 rounded-xl bg-stone-50 border border-stone-200 min-h-[46px]"></div>
-        </div>
+            <!-- عرض مرئي لسلامة الحلقات -->
+            <div id="chainVisualFlow" class="flex flex-wrap items-center gap-2 mb-6 p-4 rounded-xl bg-stone-50 border border-dashed border-stone-300 text-sm">
+              <span class="text-gray-400 text-xs">قم بتركيب سند من اللوحة يميناً ثم اضغط "نقد وفحص السند" لمعاينة العلاقات الحديثية.</span>
+            </div>
 
-        <!-- Narrators Detailed Table -->
-        <div class="overflow-x-auto rounded-xl border border-stone-200">
-          <table class="w-full text-right text-xs">
-            <thead class="bg-emerald-950 text-white font-bold">
-              <tr>
-                <th class="p-2.5">#</th>
-                <th class="p-2.5">صيغة الأداء</th>
-                <th class="p-2.5">الراوي وشهرته</th>
-                <th class="p-2.5">الطبقة والوفاة</th>
-                <th class="p-2.5">المدرسة (المِصر)</th>
-                <th class="p-2.5">المرتبة في النقد</th>
-                <th class="p-2.5">فحص السماع والاتصال</th>
-              </tr>
-            </thead>
-            <tbody id="sheetNarratorsTableBody" class="divide-y divide-stone-100 bg-white"></tbody>
-          </table>
-        </div>
+            <!-- تفاصيل العلل المرصودة -->
+            <div id="auditDetailsList" class="space-y-3">
+              <!-- تظهر تقارير التحقق التلقائية هنا -->
+            </div>
+          </div>
 
-        <!-- Summary & Next Step Call to Action -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs">
-          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200 space-y-1">
-            <div class="font-bold text-emerald-950">🎯 مدار الإسناد والمتابعات:</div>
-            <div id="sheetMadarSummary" class="text-stone-700 font-semibold"></div>
-            <div id="sheetMutabaatSummary" class="text-stone-600 leading-relaxed text-[11px]"></div>
+          <!-- توجيه حديثي علمي -->
+          <div class="mt-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2">
+            <svg class="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <span class="font-bold">قاعدة التحقق:</span>
+              يقوم المحرك بمطابقة معاصرة الرواة طبقياً وتاريخياً، والتحقق من كون الراوي في مصفوفة الشيوخ المعتمدين، وفحص عنعنة المشهورين بالتدليس (مثل قتادة والأعمش) واستثناء مواضع السماع الصريح.
+            </div>
           </div>
-          <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-300 space-y-1.5">
-            <div class="font-bold text-amber-950">⚖️ الحكم المختار وضبط المقابلة:</div>
-            <div id="sheetAutoAuditVerdict" class="font-bold text-emerald-900"></div>
-            <div id="sheetFinalRulingText" class="text-stone-800 font-medium text-[11px]"></div>
-          </div>
+
         </div>
 
       </div>
-
     </section>
 
-    <!-- ================================================================= -->
-    <!-- TAB 2: AUTOMATED ISNAD & DEFECT VALIDATOR ENGINE (محرك كشف العلل) -->
-    <!-- ================================================================= -->
-    <section id="tab-analyzer" class="tab-panel hidden space-y-4">
+    <!-- ----------------- التبويب الثالث: موسوعة الرواة ----------------- -->
+    <section id="tabEncyclopedia" class="tab-content hidden">
       
-      <!-- Engine Top Header -->
-      <div class="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 text-white rounded-2xl p-5 shadow-sm border border-emerald-800/80">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div class="space-y-1.5">
-            <div class="flex items-center gap-2">
-              <span class="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 text-xl font-bold">🔬</span>
-              <h2 class="text-base sm:text-lg font-bold">محرك كشف العلل وفحص اتصال الأسانيد التلقائي</h2>
-              <span class="bg-amber-400 text-slate-950 text-[10px] px-2 py-0.5 rounded-full font-black">الخطوة 2: النقد الآلي</span>
-            </div>
-            <p class="text-xs text-emerald-100/90 max-w-3xl leading-relaxed">
-              يقوم هذا المحرك بتحليل الإسناد وفق قواعد المحدثين عبر 4 ركائز نقدية: <strong class="text-amber-300">عدالة وضبط الرجال</strong>، <strong class="text-emerald-300">ثبوت السماع والاتصال</strong>، <strong class="text-rose-300">كشف التدليس عند العنعنة</strong>، و<strong class="text-sky-300">رصد الانقطاع والإرسال الخفي</strong> مع إصدار بطاقة حكم حديثية معللة.
-            </p>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button id="btnRunFullSanadAudit" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
-              <span>⚡</span>
-              <span>تشغيل الفحص الآلي الآن</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Analysis Source Switcher -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-stone-200/90 space-y-3.5">
-        
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-stone-700">مصدر الإسناد المراد فحصه:</span>
-            <div class="inline-flex rounded-xl bg-stone-100 p-1 border border-stone-200 text-xs font-bold">
-              <button id="auditSourceCustomBtn" class="px-3 py-1 rounded-lg bg-white shadow-xs text-emerald-900 transition">سند استمارة التخريج</button>
-              <button id="auditSourcePairBtn" class="px-3 py-1 rounded-lg text-stone-600 hover:text-stone-900 transition">فحص حلقة راويين (شيخ وتلميذ)</button>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 flex-wrap">
-            <button id="btnLoadSampleToAuditNiyyat" class="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition">حديث النيات (صحيح)</button>
-            <button id="btnLoadSampleToAuditTadlis" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-900 text-xs font-bold transition">عنعنة قتادة (مدلس)</button>
-            <button id="btnLoadSampleToAuditInqita" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold transition">انقطاع وإرسال خفي</button>
-          </div>
-        </div>
-
-        <!-- Mode A: Full Chain -->
-        <div id="auditChainBuilderMode" class="space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <h3 class="text-xs font-bold text-stone-800 flex items-center gap-1.5">
-              <span>⛓️</span>
-              <span>سلسلة الإسناد المفحوصة (مرتبة من المصنف إلى الصحابي):</span>
-            </h3>
-            <div class="flex items-center gap-1.5">
-              <select id="chainBuilderAddSelect" class="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs font-medium"></select>
-              <button id="btnAddNarratorToChain" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition">+ أضف للسند</button>
-              <button id="btnClearCustomChain" class="px-2.5 py-1.5 rounded-lg bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-medium transition">مسح</button>
-            </div>
-          </div>
-          <div id="customChainDisplay" class="flex flex-wrap items-center gap-2 p-3.5 rounded-xl bg-stone-50 border border-stone-200 min-h-[58px]"></div>
-          <div id="customChainDiagnosis" class="text-xs font-medium text-stone-700"></div>
-        </div>
-
-        <!-- Mode B: Quick Two-Narrator Pair Check -->
-        <div id="auditPairCheckMode" class="hidden grid grid-cols-1 md:grid-cols-3 gap-3 items-end bg-stone-50 p-4 rounded-xl border border-stone-200">
+      <!-- إحصائيات وبحث وفلاتر -->
+      <div class="bg-white rounded-2xl shadow-md border border-stone-200 p-5 mb-6">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
           <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">الراوي الأعلى (الشيخ المروي عنه):</label>
-            <select id="selectTeacherNode" class="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-medium"></select>
+            <h3 class="text-xl font-bold font-amiri text-stone-900">فهرس موسوعة الرواة</h3>
+            <p class="text-xs text-gray-500">تصفح الرواة الموثقين، وابحث بالاسم أو اللقب أو رتبة الجرح والتعديل</p>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">الراوي الأدنى (التلميذ الراوي عنه):</label>
-            <select id="selectStudentNode" class="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-medium"></select>
-          </div>
-          <div>
-            <button id="btnRunContinuityCheck" class="w-full py-2.5 px-4 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs shadow transition">
-              فحص الاتصال والطبقة الزمنية
-            </button>
-          </div>
-        </div>
-        <div id="continuityResultBox" class="p-3.5 rounded-xl border border-stone-200 bg-white text-xs"></div>
-
-      </div>
-
-      <!-- COMPREHENSIVE AUTOMATED AUDIT REPORT CARD -->
-      <div id="automatedAuditReportCard" class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border-2 border-emerald-900/20 space-y-4">
-        
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-stone-100 pb-3.5">
-          <div class="flex items-center gap-3">
-            <span class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center text-lg font-bold">⚖️</span>
-            <div>
-              <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider">تقرير الفحص والعلل الآلي التحريري</span>
-              <h3 id="auditReportOverallVerdict" class="text-base sm:text-lg font-black text-emerald-950 font-amiri mt-0.5">
-                إسناد صحيح متصل — رجاله ثقات أثبات وسلم من الشذوذ والعلة
-              </h3>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <span id="auditBadgeOverallScore" class="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300">
-              صحيح لذاته ✓
-            </span>
+          <div class="text-xs text-emerald-800 bg-emerald-100/70 border border-emerald-300 px-3 py-1.5 rounded-lg font-bold">
+            عدد الرواة المفهرسين: <span id="encyclopediaCountBadge">٠</span>
           </div>
         </div>
 
-        <!-- 4-Pillars Scientific Audit Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input type="text" id="encyclopediaSearchInput" placeholder="ابحث باسم الراوي (مثال: مالك، ابن حجر، نافع، قتادة)..."
+            class="px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200 outline-none">
           
-          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/90 space-y-1">
-            <div class="flex items-center justify-between text-stone-500 text-[11px]">
-              <span class="font-bold">1. عدالة وضبط الرواة</span>
-              <span id="auditBadgeAdalah" class="text-emerald-700 font-bold">متحقق ✓</span>
-            </div>
-            <div id="auditTextAdalah" class="text-stone-800 font-medium leading-relaxed">
-              جميع رواة الإسناد ثقات أئمة أثبات لا مطعن فيهم.
-            </div>
-          </div>
+          <select id="filterLayerSelect" class="px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white outline-none">
+            <option value="">جميع الطبقات</option>
+            <option value="الصحابة">الطبقة الأولى - الصحابة</option>
+            <option value="كبار التابعين">الطبقة الثانية - كبار التابعين</option>
+            <option value="الوسطى من التابعين">الطبقة الثالثة - أوساط التابعين</option>
+            <option value="أتباع التابعين">أتباع التابعين</option>
+            <option value="المصنفين">أصحاب الكتب والمصنفات</option>
+          </select>
 
-          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/90 space-y-1">
-            <div class="flex items-center justify-between text-stone-500 text-[11px]">
-              <span class="font-bold">2. ثبوت السماع والاتصال</span>
-              <span id="auditBadgeIttisal" class="text-emerald-700 font-bold">متصل ✓</span>
-            </div>
-            <div id="auditTextIttisal" class="text-stone-800 font-medium leading-relaxed">
-              ثبت السماع والتعاصر بين كل راوٍ وشيخه في كتب التراجم.
-            </div>
-          </div>
-
-          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/90 space-y-1">
-            <div class="flex items-center justify-between text-stone-500 text-[11px]">
-              <span class="font-bold">3. كشف التدليس والعنعنة</span>
-              <span id="auditBadgeTadlis" class="text-emerald-700 font-bold">بريء من التدليس ✓</span>
-            </div>
-            <div id="auditTextTadlis" class="text-stone-800 font-medium leading-relaxed">
-              لا توجد عنعنة لراوٍ موصوف بالتدليس في هذا الطريق.
-            </div>
-          </div>
-
-          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/90 space-y-1">
-            <div class="flex items-center justify-between text-stone-500 text-[11px]">
-              <span class="font-bold">4. السلامة من الشذوذ والعلل</span>
-              <span id="auditBadgeIllah" class="text-emerald-700 font-bold">سالم ✓</span>
-            </div>
-            <div id="auditTextIllah" class="text-stone-800 font-medium leading-relaxed">
-              السند موافق لأصول أئمة الحديث ولم يرصد فيه قلب أو شذوذ.
-            </div>
-          </div>
-
+          <select id="filterStatusSelect" class="px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white outline-none">
+            <option value="">جميع رتب الجرح والتعديل</option>
+            <option value="صحابي">الصحابة (عدول بتعديل الله ورسوله)</option>
+            <option value="ثقة">الثقات والأثبات</option>
+            <option value="صدوق">الصدوق (حسن الحديث)</option>
+            <option value="ضعيف">الضعفاء والمتروكون</option>
+          </select>
         </div>
+      </div>
 
-        <!-- Step-by-Step Chain Audit Detail Table -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between text-xs text-stone-700 font-bold">
-            <span>تحليل حلقات السند تفصيلياً (حلقة بحلقة):</span>
-            <span class="text-stone-400 font-normal text-[11px]">تقييم فارق السنين وتوافق الطبقات وصيغ الأداء</span>
-          </div>
-          <div class="overflow-x-auto rounded-xl border border-stone-200">
-            <table class="w-full text-right text-xs">
-              <thead class="bg-emerald-950 text-white font-bold">
-                <tr>
-                  <th class="p-2.5">#</th>
-                  <th class="p-2.5">التلميذ (الراوي)</th>
-                  <th class="p-2.5">صيغة التحمل</th>
-                  <th class="p-2.5">الشيخ (المروي عنه)</th>
-                  <th class="p-2.5">فارق الطبقة والوفاة</th>
-                  <th class="p-2.5">كشف التدليس والعنعنة</th>
-                  <th class="p-2.5">حكم اتصال الحلقة</th>
-                </tr>
-              </thead>
-              <tbody id="auditStepsTableBody" class="divide-y divide-stone-100 bg-white"></tbody>
-            </table>
-          </div>
-        </div>
+      <!-- شبكة عرض بطاقات الرواة -->
+      <div id="encyclopediaGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <!-- تتولى دالة renderEncyclopedia() تعبئتها ديناميكياً -->
+      </div>
 
-        <!-- Scholarly Reasoning -->
-        <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-300 text-xs text-amber-950 space-y-1">
-          <div class="font-bold flex items-center gap-1.5">
-            <span>📚</span>
-            <span>التعليل والتخريج المقارن:</span>
-          </div>
-          <p id="auditScholarlyNotes" class="leading-relaxed text-stone-800">
-            هذا السند من أصح الأسانيد المتداولة في كتب السنة، مدار حلقاته على الثقات الأثبات، ورواه الإمام البخاري في صحيحه مسنداً موصولاً.
-          </p>
-        </div>
-
+      <!-- أزرار التصفح (Pagination) السلسة -->
+      <div class="flex items-center justify-between bg-white px-5 py-3 rounded-xl border border-stone-200 text-xs font-semibold">
+        <button id="btnPrevPage" class="px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition disabled:opacity-40">السابق</button>
+        <span id="pageIndicatorText" class="text-stone-600">صفحة ١ من ١</span>
+        <button id="btnNextPage" class="px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition disabled:opacity-40">التالي</button>
       </div>
 
     </section>
 
-    <!-- ================================================================= -->
-    <!-- TAB 3: VISUAL INTERACTIVE TREE (مشجّر الرواة التفاعلي) -->
-    <!-- ================================================================= -->
-    <section id="tab-tree" class="tab-panel hidden space-y-4">
-      
-      <!-- Tree Controls -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-stone-200/90 space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="relative flex-1 min-w-[240px]">
-            <input id="searchNarratorInput" type="text" placeholder="ابحث بالاسم، الكنية، أو المِصر (مثل: الزهري، نافع، مالك، البخاري)..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-stone-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-stone-50/70" />
-            <svg class="w-4 h-4 text-stone-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          </div>
+    <!-- ----------------- التبويب الرابع: سلاسل الذهب ----------------- -->
+    <section id="tabGoldenChains" class="tab-content hidden">
+      <div class="bg-white rounded-2xl shadow-md border border-stone-200 p-6 mb-6">
+        <h3 class="text-2xl font-bold font-amiri text-stone-900 mb-2">أصح الأسانيد (سلاسل الذهب المشهورة)</h3>
+        <p class="text-sm text-gray-600 mb-6">
+          السلاسل التي نص أئمة الحديث (كالبخاري وأحمد وعلي بن المديني) على أنها من أعلى مدارج الصحة والإتقان في الرواية. انقر فوق السلسلة لتحميلها فوراً في المشجر التفاعلي.
+        </p>
 
-          <!-- Region Filter -->
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="text-xs font-bold text-stone-500">المدرسة الحديثية:</span>
-            <button data-region="all" class="region-filter-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-700 text-white">الكل</button>
-            <button data-region="المدينة" class="region-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 text-stone-700">المدينة</button>
-            <button data-region="مكة" class="region-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 text-stone-700">مكة</button>
-            <button data-region="الكوفة" class="region-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 text-stone-700">الكوفة</button>
-            <button data-region="البصرة" class="region-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 text-stone-700">البصرة</button>
-            <button data-region="الشام ومصر" class="region-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 text-stone-700">الشام ومصر</button>
-            <button data-region="بغداد وخراسان" class="region-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 text-stone-700">بغداد وخراسان</button>
-          </div>
+        <div id="goldenChainsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- تتولى دالة renderGoldenChains() تعبئتها -->
         </div>
-
-        <!-- Chain Highlights -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-stone-100 text-xs">
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="font-bold text-amber-800">⚡ إضاءة مسار السند:</span>
-            <button data-chain="none" class="chain-quick-btn px-2.5 py-1 rounded-md bg-stone-200 text-stone-800 font-semibold">عرض المشجّر كاملاً</button>
-            <button data-chain="dhahab_ibn_umar" class="chain-quick-btn px-2.5 py-1 rounded-md bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-medium">سلسلة الذهب (مالك عن نافع عن ابن عمر)</button>
-            <button data-chain="abu_hurayrah_madinah" class="chain-quick-btn px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-medium">أصح أسانيد أبي هريرة</button>
-            <button data-chain="ibn_masud_kufa" class="chain-quick-btn px-2.5 py-1 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 font-medium">سلسلة الكوفة (ابن مسعود)</button>
-          </div>
-          <button id="btnResetSelection" class="text-xs text-emerald-700 hover:underline font-semibold">إلغاء التحديد</button>
-        </div>
-      </div>
-
-      <!-- Tree + Inspector Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        
-        <!-- Interactive Stage -->
-        <div class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-stone-200/90 overflow-hidden flex flex-col">
-          <div class="px-4 py-2.5 bg-stone-50 border-b border-stone-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="flex items-center gap-3 flex-wrap">
-              <span class="font-bold text-stone-700">دلالات الألوان:</span>
-              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> الراوي المحدد</span>
-              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> شيوخه (أخذ عنهم)</span>
-              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span> تلاميذه (رووا عنه)</span>
-            </div>
-            <span class="text-stone-400 text-[11px]">انقر على أي راوٍ لإضاءة علاقاته</span>
-          </div>
-
-          <div id="treeViewport" class="relative w-full overflow-x-auto overflow-y-auto p-4 bg-gradient-to-b from-amber-50/20 via-white to-emerald-50/20" style="min-height: 640px;">
-            <div id="treeStage" class="relative min-w-[720px] space-y-4 pb-4">
-              <svg id="treeSvgOverlay" class="absolute inset-0 pointer-events-none z-0 w-full h-full"></svg>
-              <div id="treeLayersContainer" class="relative z-10 space-y-4"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Inspector Sidebar -->
-        <aside class="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-stone-200/90 overflow-hidden sticky top-28">
-          <div id="inspectorHeader" class="islamic-pattern p-4 text-white">
-            <div class="flex items-center justify-between gap-2">
-              <span id="inspLayerBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/30 border border-amber-300/40 text-amber-200 font-medium">الطبقة الأولى: الصحابة</span>
-              <span id="inspRegionBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-900/80 border border-emerald-400/30 text-emerald-200">المدينة المنورة</span>
-            </div>
-            <h2 id="inspName" class="text-xl font-bold mt-2 font-amiri tracking-wide">عبد الله بن عمر</h2>
-            <p id="inspKunya" class="text-xs text-emerald-100/90 mt-0.5">أبو عبد الرحمن القرشي العدوي • ت 73 هـ</p>
-          </div>
-
-          <div class="p-4 space-y-3.5 text-xs max-h-[580px] overflow-y-auto">
-            <div class="grid grid-cols-2 gap-2 bg-stone-50 p-2.5 rounded-xl border border-stone-200/80">
-              <div>
-                <div class="text-[10px] text-stone-500">مرتبة ابن حجر</div>
-                <div id="inspRank" class="font-bold text-emerald-900 text-xs mt-0.5">صحابي جليل (المرتبة 1)</div>
-              </div>
-              <div>
-                <div class="text-[10px] text-stone-500">رمز التخريج</div>
-                <div id="inspRamz" class="font-bold text-amber-800 text-xs mt-0.5">ع (الجماعة الستة)</div>
-              </div>
-            </div>
-
-            <div>
-              <h3 class="font-bold text-stone-500 uppercase tracking-wider mb-1 text-[11px]">خلاصة حاله ومكانته في التحديث</h3>
-              <p id="inspBio" class="text-stone-700 leading-relaxed bg-amber-50/50 p-2.5 rounded-xl border border-amber-200/60"></p>
-            </div>
-
-            <div>
-              <h3 class="font-bold text-emerald-800 flex items-center gap-1.5 mb-1 text-[11px]">
-                <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                <span>أبرز شيوخه في المشجّر:</span>
-              </h3>
-              <div id="inspTeachersList" class="flex flex-wrap gap-1.5"></div>
-            </div>
-
-            <div>
-              <h3 class="font-bold text-sky-800 flex items-center gap-1.5 mb-1 text-[11px]">
-                <span class="w-2 h-2 rounded-full bg-sky-600"></span>
-                <span>أبرز تلاميذه في المشجّر:</span>
-              </h3>
-              <div id="inspStudentsList" class="flex flex-wrap gap-1.5"></div>
-            </div>
-
-            <div class="pt-2 border-t border-stone-200">
-              <h3 class="font-bold text-stone-700 mb-1.5 flex items-center gap-1 text-[11px]">
-                <span>📖 توثيق الترجمة من أمهات الكتب:</span>
-              </h3>
-              <ul id="inspSourcesList" class="space-y-1.5"></ul>
-            </div>
-          </div>
-        </aside>
-
-      </div>
-
-    </section>
-
-    <!-- ================================================================= -->
-    <!-- TAB 4: ENCYCLOPEDIA OF NARRATORS (موسوعة الرواة والكتب التسعة) -->
-    <!-- ================================================================= -->
-    <section id="tab-encyclopedia" class="tab-panel hidden space-y-4">
-      
-      <!-- Metrics Bar -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="bg-white p-3.5 rounded-xl border border-stone-200 shadow-sm flex flex-col justify-between">
-          <div class="text-xs text-stone-500">إجمالي الرواة المحمّلين</div>
-          <div class="text-2xl font-black text-emerald-950 mt-1 font-amiri" id="statTotalRawis">120</div>
-          <p class="text-[11px] text-stone-500 mt-0.5">جاهزة للبحث والفرز اللحظي</p>
-        </div>
-        <div class="bg-white p-3.5 rounded-xl border border-stone-200 shadow-sm flex flex-col justify-between">
-          <div class="text-xs text-stone-500">صحيح البخاري (خ)</div>
-          <div class="text-2xl font-black text-amber-900 mt-1 font-amiri" id="statBukhariCount">--</div>
-          <p class="text-[11px] text-stone-500 mt-0.5">أصحاب الأسانيد الصحيحة</p>
-        </div>
-        <div class="bg-white p-3.5 rounded-xl border border-stone-200 shadow-sm flex flex-col justify-between">
-          <div class="text-xs text-stone-500">صحيح مسلم (م)</div>
-          <div class="text-2xl font-black text-teal-900 mt-1 font-amiri" id="statMuslimCount">--</div>
-          <p class="text-[11px] text-stone-500 mt-0.5">شيوخه وأصحابه</p>
-        </div>
-        <div class="bg-white p-3.5 rounded-xl border border-stone-200 shadow-sm flex flex-col justify-between">
-          <div class="text-xs text-stone-500">السنن والمسانيد</div>
-          <div class="text-2xl font-black text-indigo-900 mt-1 font-amiri" id="statOtherBooksCount">--</div>
-          <p class="text-[11px] text-stone-500 mt-0.5">د ت س ق ط حم دي</p>
-        </div>
-      </div>
-
-      <!-- Import Card -->
-      <div class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-sm border border-emerald-800">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div class="space-y-1">
-            <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
-              <span>📂</span>
-              <span>استيراد ملفات الرواة الخارجية (CSV / JSON) حتى 28,000+ راوٍ</span>
-            </h2>
-            <p class="text-xs text-emerald-100/90 max-w-2xl leading-relaxed">
-              تتم معالجة الملفات محلياً في متصفحك في ثوانٍ مع تعريب كامل وإعادة ترقيم تسلسلية وضبط الشيوخ بدون إرسال لأي خادم.
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
-            <input type="file" id="encyclopediaFileInput" accept=".csv,.json,.txt" class="hidden" />
-            <button id="btnTriggerFileInput" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition">
-              <span>⚡</span>
-              <span>رفع ملف الرواة (CSV / JSON)</span>
-            </button>
-            <button id="btnResetToStarter" class="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium text-xs flex items-center justify-center gap-1.5 border border-emerald-600/50 transition">
-              <span>🔄</span>
-              <span>النموذج التأسيسي المدمج</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Search & Filters -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-stone-200/90 space-y-3">
-        <div class="flex flex-col sm:flex-row gap-2.5">
-          <div class="relative flex-1">
-            <input type="text" id="encyclopediaSearchInput" placeholder="ابحث باسم الراوي، الكنية، المِصر، أو المعرف (مثال: مالك، نافع، الزهري، البخاري)..." class="w-full pr-10 pl-3 py-2.5 rounded-xl border border-stone-300 text-xs sm:text-sm bg-stone-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-stone-400">🔍</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="btnExportJsonFiltered" class="px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold border border-stone-300 transition">تصدير JSON عربي</button>
-            <button id="btnExportCsvFiltered" class="px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold border border-stone-300 transition">تصدير CSV</button>
-          </div>
-        </div>
-
-        <!-- Filter Row -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-          <div>
-            <label class="block text-stone-600 font-bold mb-1">الطبقة:</label>
-            <select id="encyclopediaLayerFilter" class="w-full p-2 rounded-xl border border-stone-300 bg-white">
-              <option value="all">جميع الطبقات (1 - 12)</option>
-              <option value="1">الطبقة 1: الصحابة الكرام</option>
-              <option value="2">الطبقة 2: كبار التابعين</option>
-              <option value="3">الطبقة 3: أوساط التابعين</option>
-              <option value="4">الطبقة 4: صغار التابعين</option>
-              <option value="5">الطبقة 5: كبار أتباع التابعين</option>
-              <option value="6">الطبقة 6: أوساط الأتباع</option>
-              <option value="8">الطبقة 8: أئمة الحديث وشيوخهم</option>
-              <option value="11">الطبقة 11: أصحاب الكتب الستة</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-stone-600 font-bold mb-1">رتبة الجرح والتعديل:</label>
-            <select id="encyclopediaGradeFilter" class="w-full p-2 rounded-xl border border-stone-300 bg-white">
-              <option value="all">كافة الرتب</option>
-              <option value="sahabi">صحابي مجمع على عدالته</option>
-              <option value="thiqah_thabt">ثقة ثبت / إمام حافظ</option>
-              <option value="thiqah">ثقة (محتج به)</option>
-              <option value="sadooq">صدوق (حسن الحديث)</option>
-              <option value="maqbool">مقبول</option>
-              <option value="daeef">ضعيف / فيه لين</option>
-              <option value="matrook">متروك / واهٍ</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-stone-600 font-bold mb-1">المدرسة (المِصر):</label>
-            <select id="encyclopediaRegionFilter" class="w-full p-2 rounded-xl border border-stone-300 bg-white">
-              <option value="all">كافة الأمصار</option>
-              <option value="المدينة">المدينة المنورة</option>
-              <option value="مكة">مكة المكرمة</option>
-              <option value="الكوفة">الكوفة</option>
-              <option value="البصرة">البصرة</option>
-              <option value="الشام">الشام</option>
-              <option value="مصر">مصر</option>
-              <option value="بغداد">بغداد</option>
-              <option value="خراسان">خراسان والري</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-stone-600 font-bold mb-1">الترتيب:</label>
-            <select id="encyclopediaSortSelect" class="w-full p-2 rounded-xl border border-stone-300 bg-white">
-              <option value="id_asc">حسب المعرف التسلسلي</option>
-              <option value="layer_asc">حسب الطبقة والوفاة</option>
-              <option value="death_asc">حسب سنة الوفاة تصاعدياً</option>
-              <option value="name_asc">أبجدياً بالاسم</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 9 Books Pills -->
-        <div class="pt-2 border-t border-stone-100 flex flex-wrap items-center gap-1.5 text-xs">
-          <span class="text-stone-500 font-bold ml-1 text-[11px]">تصفية بالكتب التسعة:</span>
-          <button data-book-filter="all" class="book-pill-btn active-book-pill px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-800 text-white transition">الكل</button>
-          <button data-book-filter="خ" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">خ (البخاري)</button>
-          <button data-book-filter="م" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">م (مسلم)</button>
-          <button data-book-filter="د" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">د (أبو داود)</button>
-          <button data-book-filter="ت" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">ت (الترمذي)</button>
-          <button data-book-filter="س" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">س (النسائي)</button>
-          <button data-book-filter="ق" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">ق (ابن ماجه)</button>
-          <button data-book-filter="ط" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">ط (الموطأ)</button>
-          <button data-book-filter="حم" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">حم (مسند أحمد)</button>
-          <button data-book-filter="دي" class="book-pill-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-emerald-50 transition">دي (سنن الدارمي)</button>
-        </div>
-      </div>
-
-      <!-- Narrators Grid View -->
-      <div id="encyclopediaNarratorsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
-      
-      <!-- Pagination Bottom -->
-      <div class="bg-white rounded-xl p-3 border border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-2 shadow-sm text-xs">
-        <div class="text-stone-500 text-[11px]" id="encyclopediaPaginationSummary">عرض الرواة من 1 إلى 50</div>
-        <div id="encyclopediaPaginationBottom" class="flex items-center gap-1 overflow-x-auto max-w-full"></div>
-      </div>
-
-    </section>
-
-    <!-- ================================================================= -->
-    <!-- TAB 5: GOLDEN CHAINS (سلاسل الذهب وأصح الأسانيد) -->
-    <!-- ================================================================= -->
-    <section id="tab-chains" class="tab-panel hidden space-y-4">
-      <div class="bg-white rounded-2xl p-5 shadow-sm border border-stone-200">
-        <div class="border-b border-stone-100 pb-3">
-          <h2 class="text-lg font-bold text-emerald-950 font-amiri">سلاسل الذهب وأصح الأسانيد عند أئمة الحديث</h2>
-          <p class="text-xs text-stone-600 mt-1">حررها الإمام ابن الصلاح والذهبي في السير والسخاوي في فتح المغيث</p>
-        </div>
-        <div id="goldenChainsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"></div>
       </div>
     </section>
 
-    <!-- ================================================================= -->
-    <!-- TAB 6: 12 LAYERS & SOURCES (طبقات ابن حجر وأمهات الكتب) -->
-    <!-- ================================================================= -->
-    <section id="tab-layers" class="tab-panel hidden space-y-4">
-      <div class="bg-white rounded-2xl p-5 shadow-sm border border-stone-200 space-y-4">
-        <div class="border-b border-stone-100 pb-3">
-          <h2 class="text-lg font-bold text-emerald-950 font-amiri">التقسيم المنهجي لطبقات الرواة الـ 12 عند الحافظ ابن حجر ومقارنتها بالذهبي</h2>
-        </div>
+    <!-- ----------------- التبويب الخامس: طبقات ابن حجر ----------------- -->
+    <section id="tabIbnHajarLayers" class="tab-content hidden">
+      <div class="bg-white rounded-2xl shadow-md border border-stone-200 p-6">
+        <h3 class="text-2xl font-bold font-amiri text-stone-900 mb-2">منظومة الطبقات الإثنتي عشرة للحافظ ابن حجر</h3>
+        <p class="text-sm text-gray-600 mb-6">
+          التقسيم الاصطلاحي المعتمد في كتابه الخالد <span class="font-bold text-emerald-900">«تقريب التهذيب»</span> لضبط أجيال الرواة ومعرفة المعاصرة وإمكان اللقاء:
+        </p>
+
         <div class="overflow-x-auto">
-          <table class="w-full text-right text-xs">
+          <table class="w-full text-right text-xs md:text-sm border-collapse">
             <thead>
-              <tr class="bg-emerald-900 text-white">
-                <th class="p-3 rounded-tr-xl">الطبقة في «تقريب التهذيب»</th>
-                <th class="p-3">الوصف والتعريف</th>
-                <th class="p-3">المقابل في «سير أعلام النبلاء»</th>
-                <th class="p-3">حكم الرواية والاتصال</th>
-                <th class="p-3 rounded-tl-xl">أشهر الأعلام</th>
+              <tr class="bg-emerald-900 text-amber-200 font-amiri text-sm md:text-base">
+                <th class="p-3.5 border border-emerald-800">رقم الطبقة</th>
+                <th class="p-3.5 border border-emerald-800">توصيف الطبقة عند ابن حجر</th>
+                <th class="p-3.5 border border-emerald-800">الحقبة الزمنية التقريبية</th>
+                <th class="p-3.5 border border-emerald-800">أشهر أعلامها ورواتها</th>
               </tr>
             </thead>
-            <tbody id="ibnHajarLayersTableBody" class="divide-y divide-stone-200"></tbody>
+            <tbody id="ibnHajarTableBody" class="divide-y divide-stone-200 text-gray-800">
+              <!-- تعبأ تلقائياً -->
+            </tbody>
           </table>
         </div>
       </div>
@@ -826,846 +410,1108 @@
 
   </main>
 
-  <!-- Narrator Comprehensive Biography Modal -->
-  <div id="encyclopediaDetailModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-    <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col">
-      <div class="islamic-pattern text-white p-4 flex items-center justify-between border-b border-amber-500/30">
+  <!-- ==================== نافذة تفاصيل الراوي المنبثقة ==================== -->
+  <div id="narratorDetailModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-start justify-between border-b border-stone-200 pb-3 mb-4">
         <div>
-          <h3 id="modalNarratorName" class="font-bold text-base sm:text-lg">اسم الراوي</h3>
-          <p id="modalNarratorKunya" class="text-xs text-emerald-200/90 mt-0.5">الكنية والمصر وسنة الوفاة</p>
+          <span id="modalNarratorLayerBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold inline-block mb-1">الصحابة</span>
+          <h3 id="modalNarratorName" class="text-2xl font-bold font-amiri text-emerald-950">عبد الله بن عمر</h3>
         </div>
-        <button id="btnCloseDetailModal" class="text-stone-300 hover:text-white text-xl font-bold">&times;</button>
+        <button id="btnCloseDetailModal" class="text-gray-400 hover:text-gray-700 p-1 rounded-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
       </div>
 
-      <div class="p-5 overflow-y-auto space-y-4 text-xs sm:text-sm">
-        <div class="flex flex-wrap items-center gap-2">
-          <span id="modalSerialBadge" class="px-2.5 py-1 rounded-lg bg-stone-100 border border-stone-200 text-stone-800 font-mono font-bold text-xs">#1</span>
-          <span id="modalLayerBadge" class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs">الطبقة الأولى: الصحابة</span>
-          <span id="modalGradeBadge" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold text-xs">صحابي جليل</span>
-          <span id="modalDeathBadge" class="px-2.5 py-1 rounded-lg bg-teal-100 text-teal-900 border border-teal-300 font-mono text-xs">ت 73 هـ</span>
+      <div class="space-y-3 text-sm">
+        <div class="bg-stone-50 p-3 rounded-xl border border-stone-200">
+          <div class="text-xs text-gray-500 font-semibold mb-1">الحكم النقدي (الجرح والتعديل):</div>
+          <div id="modalNarratorStatus" class="font-bold text-emerald-900">صحابي جليل رضي الله عنه</div>
         </div>
 
-        <div class="bg-stone-50 rounded-xl p-3.5 border border-stone-200/80 space-y-1">
-          <h4 class="font-bold text-stone-800 text-xs flex items-center gap-1.5">
-            <span>⚖️</span>
-            <span>كلام أئمة الجرح والتعديل:</span>
-          </h4>
-          <p id="modalJarhText" class="text-stone-700 leading-relaxed text-xs sm:text-sm">--</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-stone-50 p-3 rounded-xl border border-stone-200">
+            <div class="text-xs text-gray-500 font-semibold mb-1">تاريخ الوفاة:</div>
+            <div id="modalNarratorDeath" class="font-bold text-gray-800">73 هـ</div>
+          </div>
+          <div class="bg-stone-50 p-3 rounded-xl border border-stone-200">
+            <div class="text-xs text-gray-500 font-semibold mb-1">الرقم التسلسلي:</div>
+            <div id="modalNarratorId" class="font-bold text-gray-800">#409</div>
+          </div>
         </div>
 
-        <div class="space-y-1">
-          <h4 class="font-bold text-stone-800 text-xs flex items-center gap-1">
-            <span>👴</span>
-            <span>شيوخه الذين روى عنهم:</span>
-          </h4>
-          <div id="modalTeachersList" class="flex flex-wrap gap-1.5 p-2 rounded-xl bg-stone-50 border border-stone-200 min-h-[36px]"></div>
+        <div>
+          <div class="text-xs font-bold text-gray-700 mb-1.5">الشيوخ المروي عنهم:</div>
+          <div id="modalNarratorTeachersList" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 bg-stone-50 rounded-xl border border-stone-200 text-xs">
+            <!-- قائمة شيوخ الراوي -->
+          </div>
         </div>
 
-        <div class="space-y-1">
-          <h4 class="font-bold text-stone-800 text-xs flex items-center gap-1">
-            <span>🧑‍🎓</span>
-            <span>تلاميذه والآخذون عنه:</span>
-          </h4>
-          <div id="modalStudentsList" class="flex flex-wrap gap-1.5 p-2 rounded-xl bg-stone-50 border border-stone-200 min-h-[36px]"></div>
+        <div class="pt-3 flex gap-2">
+          <button id="btnSetAsTreeRootFromModal" class="flex-1 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center justify-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            عرض شجرة هذا الراوي
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة استيراد الموسوعة الكاملة ==================== -->
+  <div id="importModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-3 mb-4">
+        <h3 class="text-xl font-bold font-amiri text-emerald-950 flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          استيراد موسوعة الـ 24 ألف راوٍ
+        </h3>
+        <button id="btnCloseImportModal" class="text-gray-400 hover:text-gray-700 p-1">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <p class="text-xs text-gray-600 mb-4 leading-relaxed">
+        اختر ملف <code class="bg-stone-100 text-emerald-900 px-1.5 py-0.5 rounded font-bold">rawis_clean.min.json</code> الذي قمت بتنظيفه للتو. سيتم حفظ البيانات في متصفحك بشكل دائم وسريع عبر تقنية <span class="font-bold">IndexedDB</span> ولن تحتاج لرفع الملف مرة أخرى مطلقاً.
+      </p>
+
+      <div class="border-2 border-dashed border-emerald-600/60 rounded-xl p-6 text-center cursor-pointer bg-stone-50 hover:bg-emerald-50/50 transition mb-4" id="modalDropZone">
+        <input type="file" id="modalFileInput" accept=".json" class="hidden">
+        <svg class="w-10 h-10 mx-auto text-emerald-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        <span class="text-xs font-bold text-stone-800 block">اضغط لاختيار ملف الموسوعة النظيفة (.json)</span>
+        <span id="modalFileNameLabel" class="text-xs text-emerald-700 mt-1 block"></span>
+      </div>
+
+      <!-- مؤشر التقدم -->
+      <div id="importProgressBarContainer" class="hidden mb-4">
+        <div class="flex justify-between text-xs text-stone-600 mb-1">
+          <span id="importProgressStatus">جاري استيراد وتخزين الرواة...</span>
+          <span id="importProgressPercent">0%</span>
+        </div>
+        <div class="w-full bg-stone-200 rounded-full h-2.5 overflow-hidden">
+          <div id="importProgressBar" class="bg-emerald-600 h-2.5 rounded-full transition-all duration-200" style="width: 0%"></div>
         </div>
       </div>
 
-      <div class="p-3 bg-stone-100 border-t border-stone-200 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          <button id="btnModalSendToAnalyzer" class="px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs transition">
-            🔬 فحص في محرك العلل
-          </button>
-          <button id="btnModalSendToTakhrij" class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition">
-            ➕ إضافة لسند التخريج
-          </button>
-        </div>
-        <button id="btnModalClose" class="px-4 py-1.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 font-medium text-xs transition">
-          إغلاق
+      <div class="flex gap-2">
+        <button id="btnStartImport" disabled class="flex-1 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs md:text-sm shadow transition disabled:opacity-50 disabled:cursor-not-allowed">
+          بدء الحفظ في المتصفح
+        </button>
+        <button id="btnCancelImport" class="px-4 py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold rounded-xl text-xs transition">
+          إلغاء
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Add New Narrator -->
-  <div id="addNarratorModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-stone-200 overflow-hidden">
-      <div class="islamic-pattern px-5 py-3.5 text-white flex items-center justify-between">
-        <h3 class="font-bold text-base">إضافة راوٍ جديد إلى المشجّر التفاعلي</h3>
-        <button id="btnCloseAddModal" class="text-emerald-100 hover:text-white text-lg font-bold">&times;</button>
-      </div>
-      <form id="formAddNarrator" class="p-5 space-y-3 text-xs">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block font-bold text-stone-700 mb-1">اسم الراوي وشهرته *</label>
-            <input id="inputNewName" type="text" required placeholder="مثال: الليث بن سعد" class="w-full rounded-lg border border-stone-300 px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-bold text-stone-700 mb-1">الكنية وسنة الوفاة *</label>
-            <input id="inputNewDeath" type="text" required placeholder="مثال: أبو الحارث المصري • ت 175 هـ" class="w-full rounded-lg border border-stone-300 px-3 py-2" />
-          </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block font-bold text-stone-700 mb-1">الطبقة في المشجّر *</label>
-            <select id="inputNewLayer" class="w-full rounded-lg border border-stone-300 px-3 py-2 bg-white">
-              <option value="1">1 - طبقة الصحابة الكرام</option>
-              <option value="2">2 - طبقة كبار التابعين</option>
-              <option value="3">3 - طبقة أوساط التابعين</option>
-              <option value="4">4 - طبقة صغار التابعين وتاليهم</option>
-              <option value="5">5 - طبقة كبار أتباع التابعين</option>
-              <option value="6">6 - طبقة أوساط أتباع التابعين</option>
-              <option value="7">7 - طبقة كبار الآخذين عن تبع الأتباع</option>
-              <option value="8">8 - طبقة أئمة وأصحاب الكتب الستة</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-bold text-stone-700 mb-1">المدرسة الحديثية (المِصر) *</label>
-            <select id="inputNewRegion" class="w-full rounded-lg border border-stone-300 px-3 py-2 bg-white">
-              <option value="المدينة">المدينة المنورة</option>
-              <option value="مكة">مكة المكرمة</option>
-              <option value="الكوفة">الكوفة</option>
-              <option value="البصرة">البصرة</option>
-              <option value="الشام ومصر">الشام ومصر</option>
-              <option value="بغداد وخراسان">بغداد وخراسان</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block font-bold text-stone-700 mb-1">الرتبة في الجرح والتعديل *</label>
-          <input id="inputNewRank" type="text" required placeholder="مثال: ثقة ثبت إمام فقيه (سير أعلام النبلاء)" class="w-full rounded-lg border border-stone-300 px-3 py-2" />
-        </div>
-        <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
-          <button type="button" id="btnCancelAddModal" class="px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium">إلغاء</button>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white font-bold">حفظ وإضافة للشجرة</button>
-        </div>
-      </form>
-    </div>
+  <!-- رسالة Toast التفاعلية العائمة -->
+  <div id="toastMessage" class="fixed bottom-6 left-6 z-50 bg-stone-900 text-white px-5 py-3 rounded-xl shadow-2xl text-xs md:text-sm font-semibold opacity-0 pointer-events-none transform translate-y-3 flex items-center gap-2">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastText">تم تنفيذ الإجراء</span>
   </div>
 
-  <!-- Toast Notification Box -->
-  <div id="toastMsg" class="fixed bottom-4 left-4 z-50 hidden px-4 py-2.5 rounded-xl bg-emerald-900 text-white text-xs font-bold shadow-lg border border-amber-400/40"></div>
+  <!-- تذييل المنصة -->
+  <footer class="bg-white border-t border-stone-200 py-6 mt-12 text-center text-xs text-gray-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <span>منصة مشجّر طبقات الرواة ومحرك نقد الأسانيد © ٢٠٢٦ — خدمة باحثي علوم الحديث الشريف</span>
+      <span class="text-stone-400">مبني وفق منهج الحافظ ابن حجر العسقلاني في تقريب التهذيب</span>
+    </div>
+  </footer>
 
-  <!-- ========================================================================= -->
-  <!-- MAIN JAVASCRIPT ENGINE -->
-  <!-- ========================================================================= -->
+  <!-- ==================== المحرك البرمجي الأساسي (JavaScript) ==================== -->
   <script>
-    // 1. DATASETS & DEFINITIONS
-    const LAYER_DEFINITIONS = [
-      { id: 1, shortTitle: "الطبقة 1: الصحابة", fullTitle: "الطبقة الأولى: الصحابة الكرام رضي الله عنهم", era: "ت 11 هـ - 110 هـ", badgeClass: "bg-amber-100 text-amber-900 border-amber-300" },
-      { id: 2, shortTitle: "الطبقة 2: كبار التابعين", fullTitle: "الطبقة الثانية: كبار التابعين (سعيد وعلقمة ومسروق)", era: "ت 60 هـ - 105 هـ", badgeClass: "bg-emerald-100 text-emerald-900 border-emerald-300" },
-      { id: 3, shortTitle: "الطبقة 3: أوساط التابعين", fullTitle: "الطبقة الثالثة: أوساط التابعين (نافع والشعبي وإبراهيم)", era: "ت 95 هـ - 120 هـ", badgeClass: "bg-teal-100 text-teal-900 border-teal-300" },
-      { id: 4, shortTitle: "الطبقة 4: صغار التابعين", fullTitle: "الطبقة الرابعة: صغار التابعين (الزهري والأعمش ومنصور)", era: "ت 120 هـ - 148 هـ", badgeClass: "bg-sky-100 text-sky-900 border-sky-300" },
-      { id: 5, shortTitle: "الطبقة 5: أتباع التابعين", fullTitle: "الطبقة الخامسة: كبار أتباع التابعين (مالك والثوري وشعبة)", era: "ت 150 هـ - 180 هـ", badgeClass: "bg-indigo-100 text-indigo-900 border-indigo-300" },
-      { id: 6, shortTitle: "الطبقة 6: أوساط الأتباع", fullTitle: "الطبقة السادسة: أوساط الأتباع (يحيى القطان وابن مهدي والشافعي)", era: "ت 180 هـ - 205 هـ", badgeClass: "bg-purple-100 text-purple-900 border-purple-300" },
-      { id: 7, shortTitle: "الطبقة 7: شيوخ الأئمة", fullTitle: "الطبقة السابعة: شيوخ أصحاب الكتب (أحمد وابن المديني وابن معين)", era: "ت 210 هـ - 245 هـ", badgeClass: "bg-rose-100 text-rose-900 border-rose-300" },
-      { id: 8, shortTitle: "الطبقة 8: أصحاب الكتب الستة", fullTitle: "الطبقة الثامنة: أئمة الكتب الستة (البخاري ومسلم وأصحاب السنن)", era: "ت 250 هـ - 303 هـ", badgeClass: "bg-amber-200 text-slate-950 border-amber-500" }
+    /* ============================================================
+       1. قاعدة البيانات المدمجة الافتراضية (Core Fallback Dataset)
+       تحتوي على رواد سلاسل الذهب الكبرى وأئمة الكتب والمصنفات
+       ============================================================ */
+    const CORE_NARRATORS = [
+      // الصحابة الكرام (الطبقة الأولى)
+      { "رقم_تسلسلي": 1, "اسم_الراوي": "عبد الله بن عمر بن الخطاب", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "73 هـ", "الجرح_والتعديل": "صحابي جليل رضي الله عنه (مجمع على عدالته)", "الشيوخ": [] },
+      { "رقم_تسلسلي": 2, "اسم_الراوي": "أبو هريرة عبد الرحمن بن صخر الدوسي", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "57 هـ", "الجرح_والتعديل": "صحابي جليل رضي الله عنه (حافظ الصحابة)", "الشيوخ": [] },
+      { "رقم_تسلسلي": 3, "اسم_الراوي": "عبد الله بن مسعود الهذلي", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "32 هـ", "الجرح_والتعديل": "صحابي جليل رضي الله عنه (من السابقين الأولين)", "الشيوخ": [] },
+      { "رقم_تسلسلي": 4, "اسم_الراوي": "أنس بن مالك الأنصاري", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "93 هـ", "الجرح_والتعديل": "صحابي جليل رضي الله عنه (خادم رسول الله)", "الشيوخ": [] },
+      { "رقم_تسلسلي": 5, "اسم_الراوي": "عائشة بنت أبي بكر الصديق", "الطبقة": "الطبقة الأولى - الصحابة", "تاريخ_الوفاة": "58 هـ", "الجرح_والتعديل": "أم المؤمنين رضي الله عنها (فقيهة الأمة)", "الشيوخ": [] },
+
+      // كبار وأوساط التابعين (الطبقة الثانية والثالثة)
+      { "رقم_تسلسلي": 10, "اسم_الراوي": "نافع مولى ابن عمر", "الطبقة": "الطبقة الثالثة - الوسطى من التابعين", "تاريخ_الوفاة": "117 هـ", "الجرح_والتعديل": "ثقة ثبت فقيه مشهور", "الشيوخ": [1, 2, 5] },
+      { "رقم_تسلسلي": 11, "اسم_الراوي": "سالم بن عبد الله بن عمر", "الطبقة": "الطبقة الثالثة - الوسطى من التابعين", "تاريخ_الوفاة": "106 هـ", "الجرح_والتعديل": "ثقة ثبت فقيه عابد، أحد الفقهاء السبعة", "الشيوخ": [1, 2, 5] },
+      { "رقم_تسلسلي": 12, "اسم_الراوي": "سعيد بن المسيب القرشي المخزومي", "الطبقة": "الطبقة الثانية - كبار التابعين", "تاريخ_الوفاة": "94 هـ", "الجرح_والتعديل": "سيد التابعين، ثقة ثبت فقيه حجة", "الشيوخ": [1, 2, 5] },
+      { "رقم_تسلسلي": 13, "اسم_الراوي": "علقمة بن قيس النخعي", "الطبقة": "الطبقة الثانية - كبار التابعين", "تاريخ_الوفاة": "62 هـ", "الجرح_والتعديل": "ثقة ثبت فقيه، شبه بابن مسعود", "الشيوخ": [3, 5] },
+      { "رقم_تسلسلي": 14, "اسم_الراوي": "إبراهيم بن يزيد النخعي", "الطبقة": "الطبقة الخامسة - صغار التابعين", "تاريخ_الوفاة": "96 هـ", "الجرح_والتعديل": "ثقة فقيه ثبت إلا أنه يرسل", "الشيوخ": [13] },
+      { "رقم_تسلسلي": 15, "اسم_الراوي": "أبو سلمة بن عبد الرحمن بن عوف", "الطبقة": "الطبقة الثالثة - الوسطى من التابعين", "تاريخ_الوفاة": "94 هـ", "الجرح_والتعديل": "ثقة حجة فقيه مجتهد", "الشيوخ": [2, 5] },
+      { "رقم_تسلسلي": 16, "اسم_الراوي": "مجاهد بن جبر المكي", "الطبقة": "الطبقة الثالثة - الوسطى من التابعين", "تاريخ_الوفاة": "104 هـ", "الجرح_والتعديل": "ثقة إمام في التفسير والعلم", "الشيوخ": [1, 3] },
+      { "رقم_تسلسلي": 17, "اسم_الراوي": "قتادة بن دعامة السدوسي", "الطبقة": "الطبقة الرابعة - تلي الوسطى", "تاريخ_الوفاة": "117 هـ", "الجرح_والتعديل": "ثقة ثبت، يدلس (تعتبر عنعنته ما لم يصرح بالسماع)", "الشيوخ": [4] },
+      { "رقم_تسلسلي": 18, "اسم_الراوي": "سليمان بن مهران الأعمش", "الطبقة": "الطبقة الخامسة - صغار التابعين", "تاريخ_الوفاة": "148 هـ", "الجرح_والتعديل": "ثقة حافظ شيخ الإسلام، يدلس", "الشيوخ": [14] },
+      { "رقم_تسلسلي": 19, "اسم_الراوي": "محمد بن مسلم بن شهاب الزهري", "الطبقة": "الطبقة الرابعة - تلي الوسطى", "تاريخ_الوفاة": "124 هـ", "الجرح_والتعديل": "الفقيه الحافظ، متفق على جلالته وإتقانه", "الشيوخ": [4, 11, 12, 15] },
+
+      // أتباع التابعين وأتباعهم (الطبقات السادسة إلى التاسعة)
+      { "رقم_تسلسلي": 30, "اسم_الراوي": "مالك بن أنس بن مالك الأصبحي", "الطبقة": "الطبقة السابعة - كبار أتباع التابعين", "تاريخ_الوفاة": "179 هـ", "الجرح_والتعديل": "إمام دار الهجرة، رأس المتقنين وأثبت الناس", "الشيوخ": [10, 19] },
+      { "رقم_تسلسلي": 31, "اسم_الراوي": "سفيان بن عيينة الهلالي", "الطبقة": "الطبقة الثامنة - أوساط أتباع التابعين", "تاريخ_الوفاة": "198 هـ", "الجرح_والتعديل": "ثقة حافظ فقيه إمام حجة", "الشيوخ": [18, 19] },
+      { "رقم_تسلسلي": 32, "اسم_الراوي": "سفيان بن سعيد الثوري", "الطبقة": "الطبقة السابعة - كبار أتباع التابعين", "تاريخ_الوفاة": "161 هـ", "الجرح_والتعديل": "أمير المؤمنين في الحديث", "الشيوخ": [18, 19] },
+      { "رقم_تسلسلي": 33, "اسم_الراوي": "شعبة بن الحجاج العتكي", "الطبقة": "الطبقة السابعة - كبار أتباع التابعين", "تاريخ_الوفاة": "160 هـ", "الجرح_والتعديل": "أمير المؤمنين في الحديث، ميزان الرجال", "الشيوخ": [17, 18] },
+      { "رقم_تسلسلي": 34, "اسم_الراوي": "يحيى بن سعيد القطان", "الطبقة": "الطبقة التاسعة - صغار أتباع التابعين", "تاريخ_الوفاة": "198 هـ", "الجرح_والتعديل": "ثقة ثبت إمام جهبذ ناقد", "الشيوخ": [30, 32, 33] },
+      { "رقم_تسلسلي": 35, "اسم_الراوي": "عبد الرحمن بن مهدي", "الطبقة": "الطبقة التاسعة - صغار أتباع التابعين", "تاريخ_الوفاة": "198 هـ", "الجرح_والتعديل": "إمام ثقة ثبت عارف بالرجال والعلل", "الشيوخ": [30, 32, 33] },
+      { "رقم_تسلسلي": 36, "اسم_الراوي": "عبد الله بن وهب القرشي", "الطبقة": "الطبقة التاسعة - صغار أتباع التابعين", "تاريخ_الوفاة": "197 هـ", "الجرح_والتعديل": "ثقة فقيه حافظ عابد", "الشيوخ": [30] },
+      { "رقم_تسلسلي": 37, "اسم_الراوي": "عبد الله بن المبارك المروزي", "الطبقة": "الطبقة الثامنة - أوساط أتباع التابعين", "تاريخ_الوفاة": "181 هـ", "الجرح_والتعديل": "الإمام الثقة الحافظ الجامع لخصال الخير", "الشيوخ": [30, 32] },
+
+      // كبار الآخذين وأصحاب الكتب (الطبقة العاشرة إلى الثانية عشرة)
+      { "رقم_تسلسلي": 50, "اسم_الراوي": "محمد بن إدريس الشافعي", "الطبقة": "الطبقة التاسعة - صغار أتباع التابعين", "تاريخ_الوفاة": "204 هـ", "الجرح_والتعديل": "الإمام المطلبي صاحب المذهب، ثقة إمام حجة", "الشيوخ": [30, 31] },
+      { "رقم_تسلسلي": 51, "اسم_الراوي": "أحمد بن محمد بن حنبل الشيباني", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "241 هـ", "الجرح_والتعديل": "إمام أهل السنة، ثقة ثبت حجة حافظ", "الشيوخ": [31, 34, 35, 50] },
+      { "رقم_تسلسلي": 52, "اسم_الراوي": "عبد الله بن يوسف التنيسي", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "218 هـ", "الجرح_والتعديل": "ثقة متقن، أثبت الناس في موطأ مالك", "الشيوخ": [30] },
+      { "رقم_تسلسلي": 53, "اسم_الراوي": "إسماعيل بن أبي أويس المدني", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "226 هـ", "الجرح_والتعديل": "صدوق روى له الشيخان (ابن أخت مالك)", "الشيوخ": [30] },
+      { "رقم_تسلسلي": 54, "اسم_الراوي": "علي بن المديني", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "234 هـ", "الجرح_والتعديل": "إمام علل الحديث وعلم الرجال", "الشيوخ": [31, 34, 35] },
+      { "رقم_تسلسلي": 55, "اسم_الراوي": "يحيى بن معين البغدادي", "الطبقة": "الطبقة العاشرة - كبار الآخذين عن أتباع التابعين", "تاريخ_الوفاة": "233 هـ", "الجرح_والتعديل": "إمام الجرح والتعديل المشهور", "الشيوخ": [31, 34, 35] },
+
+      // أصحاب المصنفات والكتب المشهورة
+      { "رقم_تسلسلي": 60, "اسم_الراوي": "محمد بن إسماعيل البخاري", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "256 هـ", "الجرح_والتعديل": "أمير المؤمنين في الحديث، صاحب الجامع الصحيح", "الشيوخ": [51, 52, 53, 54] },
+      { "رقم_تسلسلي": 61, "اسم_الراوي": "مسلم بن الحجاج النيسابوري", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "261 هـ", "الجرح_والتعديل": "الإمام الحافظ الحجة صاحب المسند الصحيح", "الشيوخ": [51, 60] },
+      { "رقم_تسلسلي": 62, "اسم_الراوي": "أبو داود سليمان بن الأشعث السجستاني", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "275 هـ", "الجرح_والتعديل": "إمام أهل الحديث في عصره، صاحب السنن", "الشيوخ": [51, 55] },
+      { "رقم_تسلسلي": 63, "اسم_الراوي": "أبو عيسى محمد بن عيسى الترمذي", "الطبقة": "الطبقة الثانية عشرة - صغار الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "279 هـ", "الجرح_والتعديل": "الحافظ العلم صاحب الجامع والعلل", "الشيوخ": [60, 62] },
+      { "رقم_تسلسلي": 64, "اسم_الراوي": "أحمد بن شعيب النسائي", "الطبقة": "الطبقة الثانية عشرة - صغار الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "303 هـ", "الجرح_والتعديل": "إمام حافظ ناقد، شرطه في الرجال شديد", "الشيوخ": [51, 60, 62] },
+      { "رقم_تسلسلي": 65, "اسم_الراوي": "ابن ماجه محمد بن يزيد القزويني", "الطبقة": "الطبقة الحادية عشرة - أوساط الآخذين (أصحاب الكتب)", "تاريخ_الوفاة": "273 هـ", "الجرح_والتعديل": "صاحب السنن المشهورة والتفسير", "الشيوخ": [51] }
     ];
 
-    const INITIAL_NARRATORS = [
-      { id: "ibn_umar", name: "عبد الله بن عمر", fullName: "عبد الله بن عمر بن الخطاب العدوي", kunya: "أبو عبد الرحمن المدني", deathYear: 73, deathText: "ت 73 هـ", layer: 1, region: "المدينة", rank: "صحابي جليل من المكثرين السبعة", ramz: "ع (الجماعة)", bio: "أحد العبادلة الفقهاء وأشد الصحابة تحرياً واتباعاً للأثر النبوي.", sources: [{ title: "سير أعلام النبلاء (ج3)", url: "https://shamela.ws/book/10906" }] },
-      { id: "abu_hurayrah", name: "أبو هريرة الدوسي", fullName: "عبد الرحمن بن صخر الدوسي", kunya: "أبو هريرة سيد الحفاظ", deathYear: 57, deathText: "ت 57 هـ", layer: 1, region: "المدينة", rank: "صحابي جليل راوية الإسلام الأول", ramz: "ع (الجماعة)", bio: "أكثر الصحابة حديثاً، دعا له النبي ﷺ بالحفظ، دارت عليه أصح الأسانيد.", sources: [{ title: "سير أعلام النبلاء (ج2)", url: "https://shamela.ws/book/10906" }] },
-      { id: "aisha", name: "عائشة أم المؤمنين", fullName: "عائشة بنت أبي بكر الصديق التيمية", kunya: "أم عبد الله الصديقة", deathYear: 57, deathText: "ت 57 هـ", layer: 1, region: "المدينة", rank: "صحابية جليلة أفقه نساء الأمة", ramz: "ع (الجماعة)", bio: "فقيهة الإسلام ومرجع كبار الصحابة والتابعين في السنن والفرائض.", sources: [{ title: "سير أعلام النبلاء (ج2)", url: "https://shamela.ws/book/10906" }] },
-      { id: "ibn_masud", name: "عبد الله بن مسعود", fullName: "عبد الله بن مسعود الهذلي", kunya: "أبو عبد الرحمن فقيه العراق", deathYear: 32, deathText: "ت 32 هـ", layer: 1, region: "الكوفة", rank: "صحابي جليل مؤسس مدرسة الكوفة", ramz: "ع (الجماعة)", bio: "إمام أهل الكوفة في القراءة والفقه والحديث.", sources: [{ title: "سير أعلام النبلاء (ج1)", url: "https://shamela.ws/book/10906" }] },
-      { id: "anas", name: "أنس بن مالك", fullName: "أنس بن مالك الأنصاري الخزرجي", kunya: "أبو حمزة خادم رسول الله ﷺ", deathYear: 93, deathText: "ت 93 هـ", layer: 1, region: "البصرة", rank: "صحابي جليل خادم النبي ﷺ", ramz: "ع (الجماعة)", bio: "آخر من مات بالبصرة من الصحابة، خدم النبي ﷺ عشر سنين.", sources: [{ title: "سير أعلام النبلاء (ج3)", url: "https://shamela.ws/book/10906" }] },
+    /* ============================================================
+       2. إدارة قاعدة بيانات المتصفح IndexedDB
+       ============================================================ */
+    const DB_NAME = "HadithEncyclopediaDB";
+    const DB_VERSION = 1;
+    const STORE_NAME = "narrators";
+
+    let dbInstance = null;
+    let activeNarratorsList = [...CORE_NARRATORS];
+    let narratorsMap = new Map();
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            const store = db.createObjectStore(STORE_NAME, { keyPath: "رقم_تسلسلي" });
+            store.createIndex("by_name", "اسم_الراوي", { unique: false });
+          }
+        };
+        request.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+        request.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function loadDataFromIndexedDB() {
+      if (!dbInstance) await openDatabase();
+      return new Promise((resolve) => {
+        const tx = dbInstance.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => {
+          const res = req.result;
+          if (res && res.length > 50) {
+            activeNarratorsList = res;
+            rebuildMap();
+            updateDbStatusUI(true, res.length);
+          } else {
+            activeNarratorsList = [...CORE_NARRATORS];
+            rebuildMap();
+            updateDbStatusUI(false, CORE_NARRATORS.length);
+          }
+          resolve(activeNarratorsList);
+        };
+        req.onerror = () => {
+          activeNarratorsList = [...CORE_NARRATORS];
+          rebuildMap();
+          resolve(activeNarratorsList);
+        };
+      });
+    }
+
+    function rebuildMap() {
+      narratorsMap.clear();
+      for (let i = 0; i < activeNarratorsList.length; i++) {
+        const r = activeNarratorsList[i];
+        narratorsMap.set(r["رقم_تسلسلي"], r);
+      }
+      // تحديث شارات الإحصاء
+      const countBadge = document.getElementById("encyclopediaCountBadge");
+      if (countBadge) countBadge.textContent = activeNarratorsList.length.toLocaleString('ar-EG');
+    }
+
+    function updateDbStatusUI(isFull, count) {
+      const dot = document.getElementById("dbStatusDot");
+      const text = document.getElementById("dbStatusText");
+      if (isFull) {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
+        text.textContent = `الموسوعة مفعلة (${count.toLocaleString('ar-EG')} راوٍ)`;
+      } else {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+        text.textContent = `القاعدة الأساسية (${count} راوٍ)`;
+      }
+    }
+
+    /* ============================================================
+       3. إدارة التبويبات والملاحة (Tabs Navigation)
+       ============================================================ */
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabContents = document.querySelectorAll(".tab-content");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-tab");
+        
+        tabButtons.forEach(b => {
+          b.classList.remove("active-tab", "bg-emerald-800", "text-amber-300");
+          b.classList.add("text-emerald-100");
+        });
+        btn.classList.add("active-tab", "bg-emerald-800", "text-amber-300");
+        btn.classList.remove("text-emerald-100");
+
+        tabContents.forEach(tc => {
+          if (tc.id === targetId) {
+            tc.classList.remove("hidden");
+            tc.classList.add("block");
+          } else {
+            tc.classList.remove("block");
+            tc.classList.add("hidden");
+          }
+        });
+
+        // إذا تم فتح تبويب المشجر يتم إعادة ضبط الخطوط
+        if (targetId === "tabTree") {
+          setTimeout(drawTreeConnectors, 80);
+        }
+      });
+    });
+
+    /* ============================================================
+       4. محرك المشجر التفاعلي (Interactive Tree Engine)
+       ============================================================ */
+    let currentTreeRootId = 60; // الإمام البخاري افتراضياً
+    const treeLayersGrid = document.getElementById("treeLayersGrid");
+    const treeSvgCanvas = document.getElementById("treeSvgCanvas");
+    const treeRootInput = document.getElementById("treeRootNarratorInput");
+    const treeSuggestionsBox = document.getElementById("treeSuggestionsBox");
+    const selectTreeDepth = document.getElementById("selectTreeDepth");
+
+    function renderTree(rootId) {
+      currentTreeRootId = rootId;
+      const rootNarrator = narratorsMap.get(rootId) || activeNarratorsList[0];
+      if (!rootNarrator) return;
+
+      treeRootInput.value = rootNarrator["اسم_الراوي"];
+      treeLayersGrid.innerHTML = "";
+
+      const maxDepth = parseInt(selectTreeDepth.value, 10) || 3;
       
-      { id: "said_musayyab", name: "سعيد بن المسيب", fullName: "سعيد بن المسيب المخزومي القرشي", kunya: "أبو محمد سيد التابعين", deathYear: 94, deathText: "ت 94 هـ", layer: 2, region: "المدينة", rank: "ثقة ثبت إمام فقيه سيد التابعين", ramz: "ع (الجماعة)", bio: "عالم أهل المدينة في زمانه ومقدم الفقهاء السبعة.", sources: [{ title: "سير أعلام النبلاء (ج4)", url: "https://shamela.ws/book/10906" }] },
-      { id: "urwah", name: "عروة بن الزبير", fullName: "عروة بن الزبير بن العوام الأسدي", kunya: "أبو عبد الله المدني", deathYear: 94, deathText: "ت 94 هـ", layer: 2, region: "المدينة", rank: "ثقة ثبت فقيه أحد الفقهاء السبعة", ramz: "ع (الجماعة)", bio: "أثبت الناس في خالته عائشة أم المؤمنين، أول من صنف في المغازي.", sources: [{ title: "سير أعلام النبلاء (ج4)", url: "https://shamela.ws/book/10906" }] },
-      { id: "alqamah", name: "علقمة بن قيس النخعي", fullName: "علقمة بن قيس بن عبد الله الكوفي", kunya: "أبو شبل الكوفي", deathYear: 62, deathText: "ت 62 هـ", layer: 2, region: "الكوفة", rank: "ثقة ثبت إمام فقيه مشبه بابن مسعود", ramz: "ع (الجماعة)", bio: "أخص تلاميذ عبد الله بن مسعود وأشبههم هدياً به.", sources: [{ title: "سير أعلام النبلاء (ج4)", url: "https://shamela.ws/book/10906" }] },
-      { id: "hasan_basri", name: "الحسن البصري", fullName: "الحسن بن يسار البصري الأنصاري", kunya: "أبو سعيد إمام أهل البصرة", deathYear: 110, deathText: "ت 110 هـ", layer: 2, region: "البصرة", rank: "ثقة ثبت إمام فقيه جليل (يرسل ويدلس)", ramz: "ع (الجماعة)", bio: "سيد أهل زمانه علماً وموعظة، ولد لسنتين بقيتا من خلافة عمر.", sources: [{ title: "سير أعلام النبلاء (ج4)", url: "https://shamela.ws/book/10906" }] },
+      // بناء هيكل الطبقات الصاعدة
+      const layersMap = new Map(); // depth level -> array of narrators
+      const visited = new Set();
 
-      { id: "nafi", name: "نافع مولى ابن عمر", fullName: "نافع أبو عبد الله المدني", kunya: "أبو عبد الله المدني", deathYear: 117, deathText: "ت 117 هـ", layer: 3, region: "المدينة", rank: "ثقة ثبت إمام حجة ثبت الناس في ابن عمر", ramz: "ع (الجماعة)", bio: "راوية ابن عمر وملازمه، قطب سلسلة الذهب.", sources: [{ title: "سير أعلام النبلاء (ج5)", url: "https://shamela.ws/book/10906" }] },
-      { id: "ibrahim_nakhai", name: "إبراهيم النخعي", fullName: "إبراهيم بن يزيد النخعي الكوفي", kunya: "أبو عمران فقيه العراق", deathYear: 96, deathText: "ت 96 هـ", layer: 3, region: "الكوفة", rank: "ثقة ثبت إمام فقيه كبير الشأن", ramz: "ع (الجماعة)", bio: "وارث فقه علقمة والأسود عن ابن مسعود.", sources: [{ title: "سير أعلام النبلاء (ج4)", url: "https://shamela.ws/book/10906" }] },
+      function collectAncestors(narrator, depth) {
+        if (!narrator || depth > maxDepth) return;
+        if (!layersMap.has(depth)) layersMap.set(depth, []);
+        
+        // تفادي التكرار في نفس الطبقة
+        const existing = layersMap.get(depth).some(item => item["رقم_تسلسلي"] === narrator["رقم_تسلسلي"]);
+        if (!existing) {
+          layersMap.get(depth).push(narrator);
+        }
 
-      { id: "zuhri", name: "ابن شهاب الزهري", fullName: "محمد بن مسلم بن عبيد الله بن شهاب الزهري", kunya: "أبو بكر الحافظ المدني", deathYear: 124, deathText: "ت 124 هـ", layer: 4, region: "المدينة", rank: "الفقيه الحافظ أمير المؤمنين في الحديث", ramz: "ع (الجماعة)", bio: "أول من دوّن الحديث رسمياً، مدار الأسانيد الحجازية والشامية عليه.", sources: [{ title: "سير أعلام النبلاء (ج5)", url: "https://shamela.ws/book/10906" }] },
-      { id: "hisham_urwah", name: "هشام بن عروة", fullName: "هشام بن عروة بن الزبير", kunya: "أبو المنذر المدني", deathYear: 146, deathText: "ت 146 هـ", layer: 4, region: "المدينة", rank: "ثقة ثبت فقيه إمام", ramz: "ع (الجماعة)", bio: "حمل علم أبيه عروة عن عائشة رضي الله عنها.", sources: [{ title: "سير أعلام النبلاء (ج6)", url: "https://shamela.ws/book/10906" }] },
-      { id: "mansur", name: "منصور بن المعتمر", fullName: "منصور بن المعتمر السلمي الكوفي", kunya: "أبو عتاب الكوفي", deathYear: 132, deathText: "ت 132 هـ", layer: 4, region: "الكوفة", rank: "ثقة ثبت متقن لا يدلس", ramz: "ع (الجماعة)", bio: "أثبت أهل الكوفة على الإطلاق، ركن أصح أسانيد الكوفة.", sources: [{ title: "سير أعلام النبلاء (ج5)", url: "https://shamela.ws/book/10906" }] },
-      { id: "aamash", name: "سليمان الأعمش", fullName: "سليمان بن مهران الأسدي الكاهلي", kunya: "أبو محمد الأعمش", deathYear: 148, deathText: "ت 148 هـ", layer: 4, region: "الكوفة", rank: "ثقة حافظ عارف بالقراءات (يدلس)", ramz: "ع (الجماعة)", bio: "شيخ المحدثين بالكوفة، كان يلقب بالمصحف لصدقه وضبطه.", sources: [{ title: "سير أعلام النبلاء (ج6)", url: "https://shamela.ws/book/10906" }] },
-      { id: "qatadah", name: "قتادة بن دعامة", fullName: "قتادة بن دعامة السدوسي البصري", kunya: "أبو الخطاب البصري الحافظ", deathYear: 118, deathText: "ت 118 هـ", layer: 4, region: "البصرة", rank: "ثقة ثبت حافظ مفسر (يدلس)", ramz: "ع (الجماعة)", bio: "آية في الحفظ، أخذ عن أنس وسعيد بن المسيب والحسن البصري.", sources: [{ title: "سير أعلام النبلاء (ج5)", url: "https://shamela.ws/book/10906" }] },
-
-      { id: "malik", name: "مالك بن أنس", fullName: "مالك بن أنس الأصبحي الحميري", kunya: "أبو عبد الله إمام دار الهجرة", deathYear: 179, deathText: "ت 179 هـ", layer: 5, region: "المدينة", rank: "إمام دار الهجرة رأس المتقنين ونجم السنن", ramz: "ع (الجماعة)", bio: "صاحب «الموطأ»، وإسناده «مالك عن نافع عن ابن عمر» أصح الأسانيد مطلقاً.", sources: [{ title: "سير أعلام النبلاء (ج8)", url: "https://shamela.ws/book/10906" }] },
-      { id: "thawri", name: "سفيان الثوري", fullName: "سفيان بن سعيد الثوري الكوفي", kunya: "أبو عبد الله أمير المؤمنين في الحديث", deathYear: 161, deathText: "ت 161 هـ", layer: 5, region: "الكوفة", rank: "أمير المؤمنين في الحديث الحجة العابد", ramz: "ع (الجماعة)", bio: "إمام الكوفة في الحفظ والورع، جمع حديث العراق والحجاز.", sources: [{ title: "سير أعلام النبلاء (ج7)", url: "https://shamela.ws/book/10906" }] },
-      { id: "shubah", name: "شعبة بن الحجاج", fullName: "شعبة بن الحجاج العتكي الأزدي", kunya: "أبو بسطام أمير المؤمنين في الحديث", deathYear: 160, deathText: "ت 160 هـ", layer: 5, region: "البصرة", rank: "أمير المؤمنين في الحديث أول من فتش بالرجال", ramz: "ع (الجماعة)", bio: "كفى الناس تدليس قتادة والأعمش؛ لا يروي إلا ما صُرح فيه بالسماع.", sources: [{ title: "سير أعلام النبلاء (ج7)", url: "https://shamela.ws/book/10906" }] },
-
-      { id: "ibn_uyaynah", name: "سفيان بن عيينة", fullName: "سفيان بن عيينة الهلالي المكي", kunya: "أبو محمد محدث الحرم", deathYear: 198, deathText: "ت 198 هـ", layer: 6, region: "مكة", rank: "ثقة ثبت إمام حافظ حجة فقيه", ramz: "ع (الجماعة)", bio: "محدث الحرم المكي، روى عن الزهري وعمرو بن دينار.", sources: [{ title: "سير أعلام النبلاء (ج8)", url: "https://shamela.ws/book/10906" }] },
-      { id: "yahya_qattan", name: "يحيى بن سعيد القطان", fullName: "يحيى بن سعيد التميمي البصري", kunya: "أبو سعيد إمام الجرح والتعديل", deathYear: 198, deathText: "ت 198 هـ", layer: 6, region: "البصرة", rank: "إمام النقد والتحرير قدوة المحدثين", ramz: "ع (الجماعة)", bio: "إمام صنعة العلل ونقد الرجال بالبصرة.", sources: [{ title: "سير أعلام النبلاء (ج9)", url: "https://shamela.ws/book/10906" }] },
-      { id: "ibn_mahdi", name: "عبد الرحمن بن مهدي", fullName: "عبد الرحمن بن مهدي العنبري البصري", kunya: "أبو سعيد الناقد", deathYear: 198, deathText: "ت 198 هـ", layer: 6, region: "البصرة", rank: "ثقة ثبت حافظ عارف بالرجال والعلل", ramz: "ع (الجماعة)", bio: "قرين يحيى القطان في نقد الرجال ومعرفة العلل.", sources: [{ title: "سير أعلام النبلاء (ج9)", url: "https://shamela.ws/book/10906" }] },
-      { id: "shafii", name: "الإمام الشافعي", fullName: "محمد بن إدريس الشافعي المطلبي القرشي", kunya: "أبو عبد الله ناصر السنة", deathYear: 204, deathText: "ت 204 هـ", layer: 6, region: "الشام ومصر", rank: "إمام الملة وواضع علم أصول الفقه", ramz: "بخ د ت س ق", bio: "قرأ الموطأ على مالك حفظاً، وتفقه بالحديث والحجة.", sources: [{ title: "سير أعلام النبلاء (ج10)", url: "https://shamela.ws/book/10906" }] },
-
-      { id: "ahmad", name: "الإمام أحمد بن حنبل", fullName: "أحمد بن محمد بن حنبل الشيباني", kunya: "أبو عبد الله إمام أهل السنة", deathYear: 241, deathText: "ت 241 هـ", layer: 7, region: "بغداد وخراسان", rank: "إمام أهل السنة والجماعة صاحب المسند", ramz: "ع (الجماعة)", bio: "صاحب «المسند» العظيم، إمام الحفظ والصبر في المحنة.", sources: [{ title: "سير أعلام النبلاء (ج11)", url: "https://shamela.ws/book/10906" }] },
-      { id: "ibn_madini", name: "علي بن المديني", fullName: "علي بن عبد الله السعدي المديني البصري", kunya: "أبو الحسن إمام العلل", deathYear: 234, deathText: "ت 234 هـ", layer: 7, region: "البصرة", rank: "أمير المؤمنين في الحديث وأعلمهم بالعلل", ramz: "خ د ت س ق", bio: "شيخ البخاري المباشر في العلل، قال: ما استصغرت نفسي إلا عنده.", sources: [{ title: "سير أعلام النبلاء (ج11)", url: "https://shamela.ws/book/10906" }] },
-
-      { id: "bukhari", name: "الإمام البخاري", fullName: "محمد بن إسماعيل بن إبراهيم الجعفي البخاري", kunya: "أبو عبد الله أمير المؤمنين في الحديث", deathYear: 256, deathText: "256 هـ", layer: 8, region: "بغداد وخراسان", rank: "جبل الحفظ ومصنف الجامع الصحيح والتاريخ", ramz: "خ (صاحب الصحيح)", bio: "صاحب أصح كتاب بعد كتاب الله تعالى.", sources: [{ title: "سير أعلام النبلاء (ج12)", url: "https://shamela.ws/book/10906" }] },
-      { id: "muslim", name: "الإمام مسلم", fullName: "مسلم بن الحجاج القشيري النيسابوري", kunya: "أبو الحسين صاحب الصحيح", deathYear: 261, deathText: "261 هـ", layer: 8, region: "بغداد وخراسان", rank: "إمام الحفاظ صاحب المسند الصحيح", ramz: "م (صاحب الصحيح)", bio: "صاحب «المسند الصحيح»، جمع طرق الحديث في مكان واحد.", sources: [{ title: "سير أعلام النبلاء (ج12)", url: "https://shamela.ws/book/10906" }] },
-      { id: "abu_dawud", name: "أبو داود السجستاني", fullName: "سليمان بن الأشعث السجستاني", kunya: "أبو داود صاحب السنن", deathYear: 275, deathText: "275 هـ", layer: 8, region: "البصرة", rank: "إمام السنن وفقيه المحدثين", ramz: "د (صاحب السنن)", bio: "صاحب «السنن» في أحاديث الأحكام، عرض سننه على أحمد.", sources: [{ title: "سير أعلام النبلاء (ج13)", url: "https://shamela.ws/book/10906" }] }
-    ];
-
-    const INITIAL_EDGES = [
-      ["ibn_umar", "said_musayyab"], ["ibn_umar", "urwah"], ["ibn_umar", "nafi"],
-      ["abu_hurayrah", "said_musayyab"], ["abu_hurayrah", "urwah"],
-      ["aisha", "said_musayyab"], ["aisha", "urwah"], ["aisha", "alqamah"],
-      ["ibn_masud", "alqamah"],
-      ["anas", "hasan_basri"], ["anas", "zuhri"], ["anas", "qatadah"],
-      ["said_musayyab", "zuhri"], ["said_musayyab", "qatadah"],
-      ["urwah", "zuhri"], ["urwah", "hisham_urwah"],
-      ["alqamah", "ibrahim_nakhai"],
-      ["nafi", "malik"],
-      ["ibrahim_nakhai", "mansur"], ["ibrahim_nakhai", "aamash"],
-      ["zuhri", "malik"], ["zuhri", "thawri"], ["zuhri", "ibn_uyaynah"],
-      ["hisham_urwah", "malik"], ["hisham_urwah", "shubah"], ["hisham_urwah", "yahya_qattan"],
-      ["mansur", "thawri"], ["mansur", "shubah"],
-      ["aamash", "thawri"], ["aamash", "shubah"],
-      ["qatadah", "shubah"],
-      ["malik", "shafii"], ["malik", "yahya_qattan"], ["malik", "ibn_mahdi"],
-      ["thawri", "yahya_qattan"], ["thawri", "ibn_mahdi"],
-      ["shubah", "yahya_qattan"], ["shubah", "ibn_mahdi"],
-      ["ibn_uyaynah", "shafii"], ["ibn_uyaynah", "ahmad"], ["ibn_uyaynah", "ibn_madini"],
-      ["yahya_qattan", "ahmad"], ["yahya_qattan", "ibn_madini"],
-      ["ibn_mahdi", "ahmad"], ["ibn_mahdi", "ibn_madini"],
-      ["shafii", "ahmad"],
-      ["ahmad", "bukhari"], ["ahmad", "muslim"], ["ahmad", "abu_dawud"],
-      ["ibn_madini", "bukhari"], ["ibn_madini", "abu_dawud"],
-      ["bukhari", "muslim"]
-    ];
-
-    const MUDALLIS_IDS = new Set(["qatadah", "aamash", "hasan_basri", "hisham_urwah"]);
-
-    const TAKHRIJ_PRESETS = {
-      niyyat: {
-        matn: "«إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى، فَمَنْ كَانَتْ هِجْرَتُهُ إِلَى دُنْيَا يُصِيبُهَا أَوْ إِلَى امْرَأَةٍ يَنْكِحُهَا فَهِجْرَتُهُ إِلَى مَا هَاجَرَ إِلَيْهِ»",
-        sourceBook: "صحيح البخاري (ح 1) • كتاب بدء الوحي",
-        madar: "يحيى بن سعيد الأنصاري (ت 143 هـ)",
-        mutabaat: "أخرجه البخاري ومسلم وأبو داود والترمذي والنسائي وابن ماجه في تحفة الأشراف (ح 10612).",
-        ruling: "إسناده صحيح متصل — رجاله ثقات أثبات وسلم من الشذوذ والعلة",
-        steps: [
-          { sighah: "قال", narratorId: "bukhari" },
-          { sighah: "حدثنا", narratorId: "ibn_uyaynah" },
-          { sighah: "سمعت", customName: "يحيى بن سعيد الأنصاري (ت 143 هـ • ثقة ثبت)" },
-          { sighah: "أخبرنا", customName: "محمد بن إبراهيم التيمي (ت 120 هـ • ثقة)" },
-          { sighah: "سمعت", customName: "علقمة بن وقاص الليثي (ت 80 هـ • ثقة)" },
-          { sighah: "سمعت", customName: "عمر بن الخطاب رضي الله عنه (ت 23 هـ • صحابي)" }
-        ]
-      },
-      bunya: {
-        matn: "«بُنِيَ الإِسْلاَمُ عَلَى خَمْسٍ: شَهَادَةِ أَنْ لاَ إِلَهَ إِلاَّ اللَّهُ وَأَنَّ مُحَمَّدًا رَسُولُ اللَّهِ، وَإِقَامِ الصَّلاَةِ، وَإِيتَاءِ الزَّكَاةِ، وَالحَجِّ، وَصَوْمِ رَمَضَانَ»",
-        sourceBook: "صحيح البخاري (ح 8) ومسند أحمد",
-        madar: "نافع مولى ابن عمر عن عبد الله بن عمر",
-        mutabaat: "أخرجه البخاري ومسلم والترمذي والنسائي من طرق متعددة عن ابن عمر.",
-        ruling: "إسناده صحيح متصل — رجاله ثقات أثبات (سلسلة الذهب)",
-        steps: [
-          { sighah: "حدثنا", narratorId: "bukhari" },
-          { sighah: "حدثنا", narratorId: "ahmad" },
-          { sighah: "أخبرنا", narratorId: "shafii" },
-          { sighah: "عن", narratorId: "malik" },
-          { sighah: "عن", narratorId: "nafi" },
-          { sighah: "عن", narratorId: "ibn_umar" }
-        ]
-      },
-      khalimatani: {
-        matn: "«كَلِمَتَانِ حَبِيبَتَانِ إِلَى الرَّحْمَنِ، خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي المِيزَانِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ العَظِيمِ»",
-        sourceBook: "صحيح البخاري (ح 7563) • خاتمة الصحيح",
-        madar: "عمارة بن القعقاع عن أبي زرعة بن عمرو",
-        mutabaat: "أخرجه البخاري ومسلم والترمذي والنسائي وابن ماجه.",
-        ruling: "إسناده صحيح متصل — رجاله ثقات أثبات",
-        steps: [
-          { sighah: "حدثني", narratorId: "bukhari" },
-          { sighah: "حدثنا", customName: "أحمد بن إشكاب الكوفي (ت 218 هـ • ثقة ثبت)" },
-          { sighah: "حدثنا", customName: "محمد بن فضيل الضبي (ت 195 هـ • ثقة)" },
-          { sighah: "عن", customName: "عمارة بن القعقاع (ت 135 هـ • ثقة)" },
-          { sighah: "عن", customName: "أبي زرعة بن عمرو بن جرير (ت 110 هـ • ثقة)" },
-          { sighah: "عن", narratorId: "abu_hurayrah" }
-        ]
-      },
-      tadlis_case: {
-        matn: "مثال تطبيقي لكشف التدليس والعنعنة: إسناد فيه عنعنة قتادة بن دعامة السدوسي",
-        sourceBook: "كتب العلل والمراسيل",
-        madar: "عنعنة قتادة (مدلس) بدون تصريح بالسماع ومن غير طريق شعبة",
-        mutabaat: "قال يحيى القطان: شعبة كفانا تدليس قتادة، فإذا روى غيره بالعنعنة فُحص السماع.",
-        ruling: "إسناده معلول بعنعنة المدلس ما لم يصرح بالسماع في طريق آخر",
-        steps: [
-          { sighah: "حدثنا", narratorId: "abu_dawud" },
-          { sighah: "حدثنا", customName: "محمد بن بشار بندار (ت 252 هـ • ثقة)" },
-          { sighah: "عن", narratorId: "qatadah" },
-          { sighah: "عن", narratorId: "anas" }
-        ]
-      },
-      inqita_case: {
-        matn: "مثال تطبيقي لكشف الانقطاع والإرسال الخفي بين الطبقات المتباعدة",
-        sourceBook: "كتب العلل والمراسيل",
-        madar: "فحص الفارق الزمني والطبقي المتباعد",
-        mutabaat: "الرواية منقطعة لعدم إمكان اللقاء والتباعد بين الوفاتين.",
-        ruling: "إسناده ضعيف لوجود انقطاع ظاهر بين حلقاته",
-        steps: [
-          { sighah: "حدثنا", narratorId: "abu_dawud" },
-          { sighah: "حدثنا", narratorId: "waki" },
-          { sighah: "عن", narratorId: "said_musayyab" },
-          { sighah: "عن", narratorId: "ibn_masud" }
-        ]
-      }
-    };
-
-    // 2. APPLICATION RUNTIME STATE
-    let state = {
-      narrators: [...INITIAL_NARRATORS],
-      edges: [...INITIAL_EDGES],
-      selectedNarratorId: "malik",
-      activeChainId: "none",
-      regionFilter: "all",
-      searchQuery: "",
-      customChain: ["bukhari", "ahmad", "shafii", "malik", "nafi", "ibn_umar"],
-      takhrijSteps: [...TAKHRIJ_PRESETS.bunya.steps]
-    };
-
-    function showToast(msg) {
-      const el = document.getElementById("toastMsg");
-      if (!el) return;
-      el.textContent = msg;
-      el.classList.remove("hidden");
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => el.classList.add("hidden"), 3000);
-    }
-
-    function getNarratorById(id) {
-      return state.narrators.find(n => n.id === id);
-    }
-
-    function getTeachersOf(id) {
-      return state.edges.filter(([t, s]) => s === id).map(([t]) => getNarratorById(t)).filter(Boolean);
-    }
-
-    function getStudentsOf(id) {
-      return state.edges.filter(([t, s]) => t === id).map(([, s]) => getNarratorById(s)).filter(Boolean);
-    }
-
-    // =========================================================================
-    // 3. AUTOMATED SANAD AUDIT & DEFECT DETECTOR (محرك فحص العلل التلقائي)
-    // =========================================================================
-    function runFullSanadAudit() {
-      const tbody = document.getElementById("auditStepsTableBody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-
-      let chainSteps = [];
-      if (state.takhrijSteps && state.takhrijSteps.length > 0) {
-        chainSteps = state.takhrijSteps;
-      } else if (state.customChain && state.customChain.length > 0) {
-        chainSteps = state.customChain.map((id, idx) => ({
-          sighah: idx === 0 ? "قال" : "عن",
-          narratorId: id
-        }));
-      }
-
-      if (chainSteps.length < 2) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-stone-400">يرجى إضافة راويين على الأقل في السلسلة لفحص اتصال السند وعلله.</td></tr>`;
-        return;
-      }
-
-      let ittisalPassed = true;
-      let tadlisDetected = false;
-      let defectNotes = [];
-
-      for (let i = 0; i < chainSteps.length - 1; i++) {
-        const studentStep = chainSteps[i];
-        const teacherStep = chainSteps[i + 1];
-
-        const student = studentStep.narratorId ? getNarratorById(studentStep.narratorId) : null;
-        const teacher = teacherStep.narratorId ? getNarratorById(teacherStep.narratorId) : null;
-
-        const studentName = student ? student.name : (studentStep.customName || `راوٍ #${i+1}`);
-        const teacherName = teacher ? teacher.name : (teacherStep.customName || `شيخ #${i+2}`);
-        const sighah = studentStep.sighah || "عن";
-
-        let linkVerdictHtml = "";
-        let tadlisWarning = "سالم من التدليس ✓";
-        let timeLayerDiff = "معاصرة متقاربة";
-
-        // 1. Tadlis Check
-        const isMudallis = student && MUDALLIS_IDS.has(student.id);
-        const isExplicitSima = ["حدثنا", "حدثني", "أخبرنا", "سمعت"].includes(sighah);
-        const prevStep = i > 0 ? chainSteps[i - 1] : null;
-        const isStudentShubah = prevStep && prevStep.narratorId === "shubah";
-
-        if (isMudallis) {
-          if (isExplicitSima) {
-            tadlisWarning = `<span class="text-emerald-800 font-bold">صرح بالسماع (${sighah}) فانتفت العلة ✓</span>`;
-          } else if (isStudentShubah) {
-            tadlisWarning = `<span class="text-emerald-800 font-bold">عنعنة مدلس كفاها شعبة بالحفظ ✓</span>`;
-          } else {
-            tadlisDetected = true;
-            tadlisWarning = `<span class="text-rose-800 font-bold bg-rose-50 px-1 rounded">عنعنة مدلس (${sighah}) — علة تدليس ⚠️</span>`;
-            defectNotes.push(`عنعنة المدلس (${studentName}) عن (${teacherName}) بلفظ [${sighah}] دون تصريح بالسماع`);
+        const sheikhIds = narrator["الشيوخ"] || [];
+        for (const sId of sheikhIds) {
+          const sheikh = narratorsMap.get(sId);
+          if (sheikh && !visited.has(`${narrator["رقم_تسلسلي"]}->${sId}`)) {
+            visited.add(`${narrator["رقم_تسلسلي"]}->${sId}`);
+            collectAncestors(sheikh, depth + 1);
           }
         }
-
-        // 2. Continuity & Layer Distance
-        if (student && teacher) {
-          const directConn = state.edges.some(([t, s]) => t === teacher.id && s === student.id);
-          const deathDiff = student.deathYear - teacher.deathYear;
-          const layerDiff = student.layer - teacher.layer;
-          timeLayerDiff = `فارق ${deathDiff} سنة (ط${student.layer} عن ط${teacher.layer})`;
-
-          if (directConn) {
-            linkVerdictHtml = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold">ثابت الاتصال والسماع ✓</span>`;
-          } else if (layerDiff >= 2 || deathDiff > 75) {
-            ittisalPassed = false;
-            linkVerdictHtml = `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-900 font-bold">انقطاع ظاهري / إرسال ✗</span>`;
-            defectNotes.push(`انقطاع زمني وتباعد في الطبقات بين (${studentName}) و(${teacherName}) بفارق ${deathDiff} سنة`);
-          } else {
-            linkVerdictHtml = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold">إمكان اللقيا (يُفحص في التهذيب)</span>`;
-          }
-        } else {
-          timeLayerDiff = "بيانات خارجية";
-          linkVerdictHtml = isExplicitSima
-            ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold">مصرح بالسماع ✓</span>`
-            : `<span class="px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 font-medium">عنعنة مقبولة ظاهراً</span>`;
-        }
-
-        const tr = document.createElement("tr");
-        tr.className = i % 2 === 0 ? "bg-white" : "bg-stone-50/70";
-        tr.innerHTML = `
-          <td class="p-2.5 font-bold text-stone-500 font-mono">${i + 1}</td>
-          <td class="p-2.5 font-bold text-emerald-950">${studentName}</td>
-          <td class="p-2.5 font-bold text-amber-900 font-mono">${sighah}</td>
-          <td class="p-2.5 font-bold text-emerald-900">${teacherName}</td>
-          <td class="p-2.5 text-stone-600">${timeLayerDiff}</td>
-          <td class="p-2.5">${tadlisWarning}</td>
-          <td class="p-2.5">${linkVerdictHtml}</td>
-        `;
-        tbody.appendChild(tr);
       }
 
-      // Update Verdict Badges Safely
-      const verdictTitle = document.getElementById("auditReportOverallVerdict");
-      const badgeScore = document.getElementById("auditBadgeOverallScore");
-      const badgeIttisal = document.getElementById("auditBadgeIttisal");
-      const badgeTadlis = document.getElementById("auditBadgeTadlis");
-      const badgeIllah = document.getElementById("auditBadgeIllah");
-      const notesEl = document.getElementById("auditScholarlyNotes");
+      collectAncestors(rootNarrator, 1);
 
-      if (ittisalPassed && !tadlisDetected) {
-        if (verdictTitle) verdictTitle.textContent = "إسناد صحيح متصل — رجاله ثقات أثبات وسالم من العلل والشذوذ";
-        if (badgeScore) {
-          badgeScore.className = "px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300";
-          badgeScore.textContent = "صحيح لذاته ✓";
-        }
-        if (badgeIttisal) {
-          badgeIttisal.className = "text-emerald-700 font-bold";
-          badgeIttisal.textContent = "متصل الحلقات ✓";
-        }
-        if (badgeTadlis) {
-          badgeTadlis.className = "text-emerald-700 font-bold";
-          badgeTadlis.textContent = "بريء من التدليس ✓";
-        }
-        if (badgeIllah) {
-          badgeIllah.className = "text-emerald-700 font-bold";
-          badgeIllah.textContent = "سالم من العلة ✓";
-        }
-        if (notesEl) {
-          notesEl.textContent = "ثبتت عدالة وضبط جميع رواة هذا الإسناد، وتحقق شرط الاتصال المباشر بين الحلقات، ولم تسجل عنعنة لمدلس غير مكفية، فالحديث متصل وصحيح الإسناد باتفاق المحدثين.";
-        }
-      } else if (!ittisalPassed) {
-        if (verdictTitle) verdictTitle.textContent = "إسناد ضعيف لوجود انقطاع أو إرسال خفي بين بعض حلقاته";
-        if (badgeScore) {
-          badgeScore.className = "px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-900 border border-rose-300";
-          badgeScore.textContent = "ضعيف (منقطع) ✗";
-        }
-        if (badgeIttisal) {
-          badgeIttisal.className = "text-rose-700 font-bold";
-          badgeIttisal.textContent = "انقطاع مرصود ✗";
-        }
-        if (badgeIllah) {
-          badgeIllah.className = "text-rose-700 font-bold";
-          badgeIllah.textContent = "معلول بالانقطاع ✗";
-        }
-        if (notesEl) {
-          notesEl.innerHTML = `<span class="font-bold text-rose-900">العلة المرصودة:</span> ` + defectNotes.join(" • ");
-        }
-      } else if (tadlisDetected) {
-        if (verdictTitle) verdictTitle.textContent = "إسناد ظاهره الصحة وفيه علة تدليس لعدم التصريح بالسماع";
-        if (badgeScore) {
-          badgeScore.className = "px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-950 border border-amber-300";
-          badgeScore.textContent = "معلول بالتدليس ⚠️";
-        }
-        if (badgeTadlis) {
-          badgeTadlis.className = "text-rose-700 font-bold";
-          badgeTadlis.textContent = "عنعنة مدلس ⚠️";
-        }
-        if (badgeIllah) {
-          badgeIllah.className = "text-amber-700 font-bold";
-          badgeIllah.textContent = "علة تدليس محتملة ⚠️";
-        }
-        if (notesEl) {
-          notesEl.innerHTML = `<span class="font-bold text-amber-900">العلة المرصودة:</span> ` + defectNotes.join(" • ") + ` — ويُطلب لهذا الإسناد طريق آخر صرح فيه الراوي بالسماع لدفع العلة.`;
-        }
-      }
-    }
+      // رسم الطبقات من الأدنى (الأساس) للأعلى (الشيوخ)
+      const sortedDepths = Array.from(layersMap.keys()).sort((a, b) => a - b);
 
-    // =========================================================================
-    // 4. TAKHRIJ WORKSTATION FUNCTIONS (مكتبة المتون والتخريج)
-    // =========================================================================
-    function loadTakhrijPreset(presetKey) {
-      const p = TAKHRIJ_PRESETS[presetKey];
-      if (!p) return;
-      document.getElementById("takhrijMatnInput").value = p.matn;
-      document.getElementById("takhrijSourceBookInput").value = p.sourceBook;
-      document.getElementById("takhrijMadarInput").value = p.madar;
-      document.getElementById("takhrijMutabaatInput").value = p.mutabaat;
-      state.takhrijSteps = p.steps.map(s => ({ ...s }));
-      renderTakhrijSheet();
-    }
+      sortedDepths.forEach(depth => {
+        const narratorsInLayer = layersMap.get(depth);
+        const layerRow = document.createElement("div");
+        layerRow.className = "flex flex-col items-center";
 
-    function renderTakhrijSheet() {
-      const matn = document.getElementById("takhrijMatnInput").value.trim() || "«لم يدخل المتن بعد»";
-      const sourceBook = document.getElementById("takhrijSourceBookInput").value.trim() || "غير محدد";
-      const madar = document.getElementById("takhrijMadarInput").value.trim() || "يحدد بعد جمع الطرق";
-      const mutabaat = document.getElementById("takhrijMutabaatInput").value.trim() || "لا توجد متابعات مدونة.";
+        // عنوان الطبقة
+        const layerLabel = document.createElement("div");
+        layerLabel.className = "text-xs font-bold text-stone-500 bg-stone-100 px-3 py-1 rounded-full mb-3 border border-stone-200";
+        layerLabel.textContent = depth === 1 ? `الراوي الأساس: ${rootNarrator["اسم_الراوي"]}` : `طبقة الشيوخ (المستوى ${depth})`;
+        layerRow.appendChild(layerLabel);
 
-      document.getElementById("sheetMatnTitle").textContent = matn;
-      document.getElementById("sheetSourceSubtitle").textContent = `المصدر: ${sourceBook}`;
-      document.getElementById("sheetMadarSummary").textContent = `المدار: ${madar}`;
-      document.getElementById("sheetMutabaatSummary").textContent = `التخريج: ${mutabaat}`;
+        // بطاقات الرواة في هذه الطبقة
+        const cardsWrapper = document.createElement("div");
+        cardsWrapper.className = "flex flex-wrap justify-center gap-4 w-full";
 
-      const flowWrap = document.getElementById("sheetChainVisualFlow");
-      const tbody = document.getElementById("sheetNarratorsTableBody");
-      flowWrap.innerHTML = "";
-      tbody.innerHTML = "";
+        narratorsInLayer.forEach(n => {
+          const card = createNarratorCard(n, depth === 1);
+          cardsWrapper.appendChild(card);
+        });
 
-      if (state.takhrijSteps.length === 0) {
-        flowWrap.innerHTML = `<span class="text-xs text-stone-400">السند فارغ حالياً — أضف الرواة من الأعلى.</span>`;
-        return;
-      }
-
-      state.takhrijSteps.forEach((step, idx) => {
-        const n = step.narratorId ? getNarratorById(step.narratorId) : null;
-        const name = n ? n.name : (step.customName || `راوٍ #${idx+1}`);
-        const layerText = n ? `ط${n.layer} (${n.deathText})` : "مضاف يدوياً";
-        const region = n ? n.region : "—";
-        const rank = n ? n.rank : "ثقة مقبول";
-
-        const chip = document.createElement("div");
-        chip.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-stone-300 text-xs shadow-2xs";
-        chip.innerHTML = `
-          <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-bold text-[10px]">${step.sighah}</span>
-          <span class="font-bold text-emerald-950">${name}</span>
-          <button type="button" data-del-step="${idx}" class="text-stone-400 hover:text-rose-600 font-bold mr-1 no-print">&times;</button>
-        `;
-        flowWrap.appendChild(chip);
-
-        if (idx < state.takhrijSteps.length - 1) {
-          const arr = document.createElement("span");
-          arr.className = "text-stone-400 font-bold text-xs";
-          arr.textContent = "←";
-          flowWrap.appendChild(arr);
-        }
-
-        const tr = document.createElement("tr");
-        tr.className = idx % 2 === 0 ? "bg-white" : "bg-stone-50/70";
-        tr.innerHTML = `
-          <td class="p-2.5 font-bold text-stone-500">${idx + 1}</td>
-          <td class="p-2.5 font-bold text-amber-900 font-mono">${step.sighah}</td>
-          <td class="p-2.5 font-bold text-emerald-950">${name}</td>
-          <td class="p-2.5 text-stone-700">${layerText}</td>
-          <td class="p-2.5 text-stone-600">${region}</td>
-          <td class="p-2.5 text-stone-700">${rank}</td>
-          <td class="p-2.5 text-emerald-800 font-bold">سماع معتبر ✓</td>
-        `;
-        tbody.appendChild(tr);
+        layerRow.appendChild(cardsWrapper);
+        treeLayersGrid.appendChild(layerRow);
       });
 
-      flowWrap.querySelectorAll("[data-del-step]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const idx = parseInt(btn.getAttribute("data-del-step"), 10);
-          state.takhrijSteps.splice(idx, 1);
-          renderTakhrijSheet();
+      // رسم الأسهم والروابط
+      setTimeout(drawTreeConnectors, 100);
+    }
+
+    function createNarratorCard(narrator, isRoot = false) {
+      const card = document.createElement("div");
+      card.id = `node-${narrator["رقم_تسلسلي"]}`;
+      card.setAttribute("data-id", narrator["رقم_تسلسلي"]);
+
+      const status = narrator["الجرح_والتعديل"] || "";
+      let borderClr = "border-stone-300";
+      let badgeClr = "bg-stone-100 text-stone-700";
+
+      if (status.includes("صحابي")) {
+        borderClr = "border-emerald-500";
+        badgeClr = "bg-emerald-100 text-emerald-800";
+      } else if (status.includes("ثقة") || status.includes("حجة") || status.includes("أمير المؤمنين")) {
+        borderClr = "border-blue-500";
+        badgeClr = "bg-blue-100 text-blue-800";
+      } else if (status.includes("صدوق") || status.includes("يدلس")) {
+        borderClr = "border-amber-500";
+        badgeClr = "bg-amber-100 text-amber-800";
+      } else if (status.includes("ضعيف") || status.includes("متروك")) {
+        borderClr = "border-red-500";
+        badgeClr = "bg-red-100 text-red-800";
+      }
+
+      card.className = `tree-node w-64 bg-white rounded-xl p-3 border-2 ${borderClr} shadow-sm cursor-pointer relative z-10 select-none ${isRoot ? 'ring-4 ring-emerald-400/40 bg-emerald-50/20' : ''}`;
+      
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-1 mb-1.5">
+          <span class="text-[10px] px-2 py-0.5 rounded-md font-bold ${badgeClr} truncate max-w-[170px]">
+            ${narrator["الطبقة"] ? narrator["الطبقة"].split('-')[0].trim() : 'راوٍ'}
+          </span>
+          <span class="text-[10px] text-stone-400 font-mono">#${narrator["رقم_تسلسلي"]}</span>
+        </div>
+        <h4 class="text-sm font-bold font-amiri text-stone-900 leading-snug hover:text-emerald-800 transition line-clamp-1">
+          ${narrator["اسم_الراوي"]}
+        </h4>
+        <div class="flex items-center justify-between mt-2 pt-1.5 border-t border-stone-100 text-[11px] text-stone-500">
+          <span>الوفاة: <strong class="text-stone-700">${narrator["تاريخ_الوفاة"] || 'غير مؤرخ'}</strong></span>
+          <span class="text-emerald-700 font-semibold hover:underline">عرض الترجمة ←</span>
+        </div>
+      `;
+
+      card.addEventListener("click", () => openNarratorModal(narrator));
+      return card;
+    }
+
+    function drawTreeConnectors() {
+      if (!treeSvgCanvas) return;
+      treeSvgCanvas.innerHTML = "";
+
+      const rectSvg = treeSvgCanvas.getBoundingClientRect();
+      const nodes = treeLayersGrid.querySelectorAll(".tree-node");
+
+      nodes.forEach(node => {
+        const id = parseInt(node.getAttribute("data-id"), 10);
+        const narrator = narratorsMap.get(id);
+        if (!narrator || !narrator["الشيوخ"]) return;
+
+        const nodeRect = node.getBoundingClientRect();
+        const startX = (nodeRect.left + nodeRect.width / 2) - rectSvg.left;
+        const startY = nodeRect.top - rectSvg.top;
+
+        narrator["الشيوخ"].forEach(teacherId => {
+          const teacherNode = treeLayersGrid.querySelector(`#node-${teacherId}`);
+          if (teacherNode) {
+            const tRect = teacherNode.getBoundingClientRect();
+            const endX = (tRect.left + tRect.width / 2) - rectSvg.left;
+            const endY = tRect.bottom - rectSvg.top;
+
+            // رسم مسار انسيابي سلس (Cubic Bezier curve)
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const deltaY = Math.abs(startY - endY) * 0.5;
+            const d = `M ${startX} ${startY} C ${startX} ${startY - deltaY}, ${endX} ${endY + deltaY}, ${endX} ${endY}`;
+            
+            path.setAttribute("d", d);
+            path.setAttribute("class", "isnad-line");
+            treeSvgCanvas.appendChild(path);
+          }
         });
       });
     }
 
-    // =========================================================================
-    // 5. TREE & VISUAL CONNECTOR ENGINE (المشجّر التفاعلي)
-    // =========================================================================
-    function renderTree() {
-      const container = document.getElementById("treeLayersContainer");
-      if (!container) return;
-      container.innerHTML = "";
+    window.addEventListener("resize", () => {
+      setTimeout(drawTreeConnectors, 150);
+    });
 
-      const selId = state.selectedNarratorId;
-      const teachers = new Set(state.edges.filter(([, s]) => s === selId).map(([t]) => t));
-      const students = new Set(state.edges.filter(([t]) => t === selId).map(([, s]) => s));
+    // البحث السريع في المشجر
+    treeRootInput.addEventListener("input", (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      if (q.length < 2) {
+        treeSuggestionsBox.classList.add("hidden");
+        return;
+      }
+      const matches = activeNarratorsList.filter(n => (n["اسم_الراوي"] || "").includes(q)).slice(0, 10);
+      if (matches.length === 0) {
+        treeSuggestionsBox.classList.add("hidden");
+        return;
+      }
 
-      LAYER_DEFINITIONS.forEach(def => {
-        const rawis = state.narrators.filter(n => n.layer === def.id);
+      treeSuggestionsBox.innerHTML = "";
+      matches.forEach(m => {
+        const item = document.createElement("div");
+        item.className = "px-4 py-2 hover:bg-emerald-50 cursor-pointer border-b border-stone-100 flex items-center justify-between text-xs";
+        item.innerHTML = `
+          <span class="font-bold text-gray-800">${m["اسم_الراوي"]}</span>
+          <span class="text-stone-400 font-mono">#${m["رقم_تسلسلي"]}</span>
+        `;
+        item.addEventListener("click", () => {
+          renderTree(m["رقم_تسلسلي"]);
+          treeSuggestionsBox.classList.add("hidden");
+        });
+        treeSuggestionsBox.appendChild(item);
+      });
+      treeSuggestionsBox.classList.remove("hidden");
+    });
+
+    document.getElementById("btnRenderTree").addEventListener("click", () => {
+      renderTree(currentTreeRootId);
+      showToast("تم تحديث المشجر التفاعلي");
+    });
+
+    document.getElementById("btnResetTree").addEventListener("click", () => {
+      renderTree(60); // العودة للبخاري
+      showToast("تمت استعادة المشجر الافتراضي");
+    });
+
+    /* ============================================================
+       5. محرك نقد الأسانيد وفحص الاتصال (Isnad Critic Engine)
+       ============================================================ */
+    let currentChain = [
+      { id: 60, formula: "حدثنا" },
+      { id: 52, formula: "حدثنا" },
+      { id: 30, formula: "عن" },
+      { id: 10, formula: "عن" },
+      { id: 1, formula: "" }
+    ];
+
+    const chainBuilderList = document.getElementById("chainBuilderList");
+    const chainNarratorSearch = document.getElementById("chainNarratorSearch");
+    const chainSuggestionsBox = document.getElementById("chainSuggestionsBox");
+    const selectTahammul = document.getElementById("selectTahammul");
+    const chainVisualFlow = document.getElementById("chainVisualFlow");
+    const auditDetailsList = document.getElementById("auditDetailsList");
+    const auditVerdictBadge = document.getElementById("auditVerdictBadge");
+
+    function renderChainBuilder() {
+      chainBuilderList.innerHTML = "";
+      if (currentChain.length === 0) {
+        chainBuilderList.innerHTML = `<div class="text-center text-xs text-stone-400 py-4">السلسلة فارغة، أضف الرواة بالأسفل.</div>`;
+        return;
+      }
+
+      currentChain.forEach((item, idx) => {
+        const rawi = narratorsMap.get(item.id);
         const row = document.createElement("div");
-        row.className = "relative rounded-xl border border-stone-200 bg-white/90 p-3 shadow-2xs";
-
+        row.className = "flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-stone-200 text-xs shadow-xs";
         row.innerHTML = `
-          <div class="flex items-center justify-between gap-2 mb-2 pb-1 border-b border-stone-100 text-xs">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded font-bold border ${def.badgeClass}">${def.shortTitle}</span>
-              <span class="font-bold text-stone-700">${def.fullTitle}</span>
-            </div>
-            <span class="text-stone-400 text-[11px]">${def.era}</span>
+          <div class="flex items-center gap-2 truncate">
+            <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-[10px]">${idx + 1}</span>
+            <span class="font-bold text-stone-900 truncate">${rawi ? rawi["اسم_الراوي"] : '#' + item.id}</span>
+            ${item.formula ? `<span class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded text-[10px] font-semibold">${item.formula}</span>` : ''}
+          </div>
+          <button class="text-red-400 hover:text-red-600 font-bold px-1.5" data-index="${idx}">✕</button>
+        `;
+
+        row.querySelector("button").addEventListener("click", (e) => {
+          const remIdx = parseInt(e.target.getAttribute("data-index"), 10);
+          currentChain.splice(remIdx, 1);
+          renderChainBuilder();
+        });
+
+        chainBuilderList.appendChild(row);
+      });
+    }
+
+    chainNarratorSearch.addEventListener("input", (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      if (q.length < 2) {
+        chainSuggestionsBox.classList.add("hidden");
+        return;
+      }
+      const matches = activeNarratorsList.filter(n => (n["اسم_الراوي"] || "").includes(q)).slice(0, 8);
+      if (matches.length === 0) {
+        chainSuggestionsBox.classList.add("hidden");
+        return;
+      }
+
+      chainSuggestionsBox.innerHTML = "";
+      matches.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "px-3 py-1.5 hover:bg-emerald-50 cursor-pointer border-b border-stone-100 text-xs flex justify-between";
+        div.innerHTML = `<span>${m["اسم_الراوي"]}</span> <span class="text-stone-400 font-mono">#${m["رقم_تسلسلي"]}</span>`;
+        div.addEventListener("click", () => {
+          currentChain.push({
+            id: m["رقم_تسلسلي"],
+            formula: selectTahammul.value
+          });
+          chainNarratorSearch.value = "";
+          chainSuggestionsBox.classList.add("hidden");
+          renderChainBuilder();
+        });
+        chainSuggestionsBox.appendChild(div);
+      });
+      chainSuggestionsBox.classList.remove("hidden");
+    });
+
+    document.getElementById("btnClearChain").addEventListener("click", () => {
+      currentChain = [];
+      renderChainBuilder();
+      auditDetailsList.innerHTML = "";
+      chainVisualFlow.innerHTML = `<span class="text-gray-400 text-xs">السلسلة فارغة حالياً.</span>`;
+      auditVerdictBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-stone-100 text-stone-600";
+      auditVerdictBadge.textContent = "بانتظار بناء سند";
+    });
+
+    document.getElementById("btnRunAudit").addEventListener("click", runIsnadAudit);
+
+    function runIsnadAudit() {
+      if (currentChain.length < 2) {
+        showToast("يرجى إضافة راويين على الأقل لإجراء النقد الحديثي", "⚠️");
+        return;
+      }
+
+      auditDetailsList.innerHTML = "";
+      chainVisualFlow.innerHTML = "";
+
+      let hasBreak = false;
+      let hasTadlees = false;
+      let hasWeakNarrator = false;
+      const issues = [];
+
+      for (let i = 0; i < currentChain.length; i++) {
+        const cur = currentChain[i];
+        const rawi = narratorsMap.get(cur.id);
+
+        // إضافة البطاقة في السريان المرئي
+        const chip = document.createElement("div");
+        chip.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-stone-200 text-xs font-bold shadow-xs";
+        chip.innerHTML = `<span>${rawi ? rawi["اسم_الراوي"] : '#' + cur.id}</span>`;
+        chainVisualFlow.appendChild(chip);
+
+        if (i < currentChain.length - 1) {
+          const next = currentChain[i + 1];
+          const nextRawi = narratorsMap.get(next.id);
+          const formula = cur.formula || "عن";
+
+          // التحقق من العلاقة بين التلميذ وشيخه
+          const isSheikhInList = rawi && rawi["الشيوخ"] && rawi["الشيوخ"].includes(next.id);
+          const isTadlees = (rawi && (rawi["الجرح_والتعديل"] || "").includes("يدلس")) && formula === "عن";
+
+          if (isTadlees) hasTadlees = true;
+          if (!isSheikhInList) {
+            // انقطاع محتمل
+            hasBreak = true;
+            issues.push({
+              type: "danger",
+              title: `احتمال انقطاع بين [${rawi ? rawi["اسم_الراوي"] : '#' + cur.id}] و [${nextRawi ? nextRawi["اسم_الراوي"] : '#' + next.id}]`,
+              desc: `لم يُثبت في سجلات الشيوخ تلقي صريح ومباشر، أو أن هناك مفارقة طبقية تتطلب إثبات السماع.`
+            });
+          } else if (isTadlees) {
+            issues.push({
+              type: "warning",
+              title: `شبهة تدليس: [${rawi["اسم_الراوي"]}] بصيغة (${formula})`,
+              desc: `الراوي معروف بالتدليس واستخدم صيغة تحتمل السماع وعدمه، ما لم يصرح بالتحديث (حدثنا/سمعت).`
+            });
+          }
+
+          // سهم الانتقال
+          const arrow = document.createElement("div");
+          arrow.className = `text-xs font-bold px-1 ${isTadlees ? 'text-amber-600' : isSheikhInList ? 'text-emerald-700' : 'text-red-600'}`;
+          arrow.textContent = `← (${formula}) ←`;
+          chainVisualFlow.appendChild(arrow);
+        }
+
+        // فحص عدالة وضبط الراوي نفسه
+        if (rawi) {
+          const jarh = rawi["الجرح_والتعديل"] || "";
+          if (jarh.includes("ضعيف") || jarh.includes("متروك") || jarh.includes("كذاب")) {
+            hasWeakNarrator = true;
+            issues.push({
+              type: "danger",
+              title: `علة في ضبط الراوي: [${rawi["اسم_الراوي"]}]`,
+              desc: `حكمه عند أئمة الجرح والتعديل: ${jarh}`
+            });
+          }
+        }
+      }
+
+      // تحديد الحكم الإجمالي
+      if (hasBreak || hasWeakNarrator) {
+        auditVerdictBadge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300";
+        auditVerdictBadge.textContent = "إسناد فيه علة / منقطع أو ضعيف";
+      } else if (hasTadlees) {
+        auditVerdictBadge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300";
+        auditVerdictBadge.textContent = "إسناد حسن مع توقف في العنعنة";
+      } else {
+        auditVerdictBadge.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+        auditVerdictBadge.textContent = "إسناد متصل صحيح رجاله ثقات";
+      }
+
+      // عرض الملاحظات
+      if (issues.length === 0) {
+        auditDetailsList.innerHTML = `
+          <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-medium flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            سلسلة متصلة سالمة من الانقطاع والتدليس، ورواة السند متتابعون طبقياً وفق شروط الصحة.
           </div>
         `;
+      } else {
+        issues.forEach(iss => {
+          const div = document.createElement("div");
+          const bg = iss.type === "danger" ? "bg-red-50 border-red-200 text-red-900" : "bg-amber-50 border-amber-200 text-amber-900";
+          div.className = `p-3 rounded-xl border text-xs leading-relaxed ${bg}`;
+          div.innerHTML = `<strong class="block mb-0.5 text-sm font-amiri">${iss.title}</strong>${iss.desc}`;
+          auditDetailsList.appendChild(div);
+        });
+      }
+    }
 
-        const nodesWrap = document.createElement("div");
-        nodesWrap.className = "flex flex-wrap items-center justify-around gap-2.5 pt-1";
+    /* ============================================================
+       6. موسوعة الرواة والتصفح السلس (Encyclopedia & Pagination)
+       ============================================================ */
+    let currentPage = 1;
+    const PAGE_SIZE = 24;
+    let filteredNarrators = [...activeNarratorsList];
 
-        rawis.forEach(n => {
-          const matchesSearch = !state.searchQuery || n.name.includes(state.searchQuery) || n.kunya.includes(state.searchQuery);
-          const matchesRegion = state.regionFilter === "all" || n.region === state.regionFilter;
-          const isVisible = matchesSearch && matchesRegion;
+    const encyclopediaGrid = document.getElementById("encyclopediaGrid");
+    const encyclopediaSearchInput = document.getElementById("encyclopediaSearchInput");
+    const filterLayerSelect = document.getElementById("filterLayerSelect");
+    const filterStatusSelect = document.getElementById("filterStatusSelect");
+    const pageIndicatorText = document.getElementById("pageIndicatorText");
+    const btnPrevPage = document.getElementById("btnPrevPage");
+    const btnNextPage = document.getElementById("btnNextPage");
 
-          let style = "bg-white border-stone-300 text-stone-800";
-          let badge = "";
+    function applyEncyclopediaFilters() {
+      const q = encyclopediaSearchInput.value.trim().toLowerCase();
+      const layer = filterLayerSelect.value;
+      const status = filterStatusSelect.value;
 
-          if (n.id === selId) {
-            style = "bg-amber-50 border-2 border-amber-500 shadow-sm ring-2 ring-amber-400/50";
-            badge = `<span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-bold">المحدد</span>`;
-          } else if (teachers.has(n.id)) {
-            style = "bg-emerald-50 border-2 border-emerald-600 shadow-2xs";
-            badge = `<span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-700 text-white font-bold">شيخه</span>`;
-          } else if (students.has(n.id)) {
-            style = "bg-sky-50 border-2 border-sky-600 shadow-2xs";
-            badge = `<span class="text-[10px] px-1.5 py-0.2 rounded bg-sky-700 text-white font-bold">تلميذه</span>`;
+      filteredNarrators = activeNarratorsList.filter(n => {
+        const name = (n["اسم_الراوي"] || "").toLowerCase();
+        const nLayer = n["الطبقة"] || "";
+        const nStatus = n["الجرح_والتعديل"] || "";
+
+        if (q && !name.includes(q)) return false;
+        if (layer && !nLayer.includes(layer)) return false;
+        if (status && !nStatus.includes(status)) return false;
+        return true;
+      });
+
+      currentPage = 1;
+      renderEncyclopedia();
+    }
+
+    function renderEncyclopedia() {
+      encyclopediaGrid.innerHTML = "";
+      const totalPages = Math.ceil(filteredNarrators.length / PAGE_SIZE) || 1;
+      const start = (currentPage - 1) * PAGE_SIZE;
+      const pageItems = filteredNarrators.slice(start, start + PAGE_SIZE);
+
+      pageIndicatorText.textContent = `صفحة ${currentPage.toLocaleString('ar-EG')} من ${totalPages.toLocaleString('ar-EG')} (${filteredNarrators.length.toLocaleString('ar-EG')} راوٍ)`;
+      btnPrevPage.disabled = currentPage <= 1;
+      btnNextPage.disabled = currentPage >= totalPages;
+
+      if (pageItems.length === 0) {
+        encyclopediaGrid.innerHTML = `<div class="col-span-full text-center py-12 text-stone-400 font-bold">لا يوجد رواة يطابقون خيارات البحث.</div>`;
+        return;
+      }
+
+      pageItems.forEach(n => {
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-xl p-4 border border-stone-200 shadow-xs hover:border-emerald-600 hover:shadow-md transition cursor-pointer flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-xs text-stone-400 mb-1">
+              <span class="font-mono">#${n["رقم_تسلسلي"]}</span>
+              <span class="text-stone-600 font-semibold">${n["تاريخ_الوفاة"] ? 'توفي ' + n["تاريخ_الوفاة"] : 'غير مؤرخ'}</span>
+            </div>
+            <h4 class="text-base font-bold font-amiri text-stone-900 mb-1 line-clamp-1">${n["اسم_الراوي"]}</h4>
+            <div class="text-xs text-stone-500 mb-2 line-clamp-1">${n["الطبقة"] || 'غير محدد'}</div>
+          </div>
+          <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+            <span class="text-emerald-800 font-semibold line-clamp-1 max-w-[180px]">${n["الجرح_والتعديل"] || 'لا يوجد جرح وتعديل'}</span>
+            <span class="text-stone-400">التفاصيل ←</span>
+          </div>
+        `;
+        card.addEventListener("click", () => openNarratorModal(n));
+        encyclopediaGrid.appendChild(card);
+      });
+    }
+
+    encyclopediaSearchInput.addEventListener("input", debounce(applyEncyclopediaFilters, 250));
+    filterLayerSelect.addEventListener("change", applyEncyclopediaFilters);
+    filterStatusSelect.addEventListener("change", applyEncyclopediaFilters);
+
+    btnPrevPage.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderEncyclopedia();
+      }
+    });
+
+    btnNextPage.addEventListener("click", () => {
+      const totalPages = Math.ceil(filteredNarrators.length / PAGE_SIZE);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderEncyclopedia();
+      }
+    });
+
+    /* ============================================================
+       7. سلاسل الذهب (Golden Chains)
+       ============================================================ */
+    const GOLDEN_CHAINS = [
+      {
+        title: "أصح أسانيد أهل المدينة (سلسلة الذهب الأولى)",
+        chainText: "الإمام مالك عن نافع مولى ابن عمر عن عبد الله بن عمر بن الخطاب",
+        narratorIds: [30, 10, 1],
+        desc: "قال الإمام البخاري: أصح الأسانيد كلها: مالك عن نافع عن ابن عمر."
+      },
+      {
+        title: "سلسلة الحفظ والإتقان القرشي",
+        chainText: "سفيان بن عيينة عن محمد بن مسلم الزهري عن سالم بن عبد الله عن أبيه عبد الله بن عمر",
+        narratorIds: [31, 19, 11, 1],
+        desc: "سلسلة أئمة الحجاز الكبرى، جمعت بين الحفظ الواسع والفقه الرصين."
+      },
+      {
+        title: "أصح أسانيد أهل الكوفة والعراق",
+        chainText: "سليمان الأعمش عن إبراهيم النخعي عن علقمة بن قيس عن عبد الله بن مسعود",
+        narratorIds: [18, 14, 13, 3],
+        desc: "مقدمة أسانيد مدرسة ابن مسعود الفقهية في الكوفة."
+      },
+      {
+        title: "سلسلة حفظ مرويات أبي هريرة",
+        chainText: "محمد بن مسلم الزهري عن سعيد بن المسيب عن أبي هريرة",
+        narratorIds: [19, 12, 2],
+        desc: "أعلى مدارج حفظ سنة المصطفى ﷺ عبر راوية الإسلام وسيد التابعين."
+      }
+    ];
+
+    function renderGoldenChains() {
+      const container = document.getElementById("goldenChainsContainer");
+      container.innerHTML = "";
+
+      GOLDEN_CHAINS.forEach(gc => {
+        const card = document.createElement("div");
+        card.className = "bg-stone-50 border border-stone-200 hover:border-amber-500 rounded-2xl p-5 shadow-xs transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-3 border border-amber-300/60">
+              ⭐ سلسلة ذهبية
+            </div>
+            <h4 class="text-lg font-bold font-amiri text-stone-900 mb-2">${gc.title}</h4>
+            <div class="p-3 bg-white rounded-xl border border-stone-200 text-sm font-bold text-emerald-950 mb-3 leading-relaxed">
+              ${gc.chainText}
+            </div>
+            <p class="text-xs text-stone-500 leading-normal mb-4">${gc.desc}</p>
+          </div>
+          <button class="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            عرض هذه السلسلة في المشجر التفاعلي
+          </button>
+        `;
+
+        card.querySelector("button").addEventListener("click", () => {
+          // تحميل السلسلة بالمشجر
+          const firstId = gc.narratorIds[0];
+          document.querySelector('[data-tab="tabTree"]').click();
+          renderTree(firstId);
+          showToast(`تم تحميل: ${gc.title}`);
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    /* ============================================================
+       8. جدول طبقات ابن حجر الإثنتي عشرة
+       ============================================================ */
+    const IBN_HAJAR_LAYERS = [
+      { num: "الأولى", title: "الصحابة رضي الله عنهم على اختلاف مراتبهم", era: "إلى سنة 110 هـ", scholars: "الخلفاء الأربعة، ابن عمر، ابن عباس، أبو هريرة، عائشة" },
+      { num: "الثانية", title: "كبار التابعين (مخضرمون ومن أدرك الجاهلية)", era: "إلى سنة 95 هـ", scholars: "سعيد بن المسيب، علقمة بن قيس، قيس بن أبي حازم، الأسود" },
+      { num: "الثالثة", title: "الوسطى من التابعين", era: "إلى سنة 120 هـ", scholars: "الحسن البصري، محمد بن سيرين، نافع مولى ابن عمر، سالم بن عبد الله" },
+      { num: "الرابعة", title: "طبقة تليها (جل روايتهم عن كبار التابعين)", era: "إلى سنة 135 هـ", scholars: "الزهري، قتادة، عمرو بن دينار، أيوب السختياني" },
+      { num: "الخامسة", title: "صغار التابعين (رأوا الواحد والاثنين ولم يثبت لبعضهم سماع)", era: "إلى سنة 150 هـ", scholars: "الأعمش، إبراهيم النخعي، أبو حنيفة النعمان" },
+      { num: "السادسة", title: "عاصروا الخامسة لكن لم يثبت لهم لقاء أحد من الصحابة", era: "إلى سنة 160 هـ", scholars: "ابن جريج، جعفر بن محمد الصادق" },
+      { num: "السابعة", title: "كبار أتباع التابعين", era: "إلى سنة 180 هـ", scholars: "مالك بن أنس، سفيان الثوري، الأوزاعي، شعبة بن الحجاج" },
+      { num: "الثامنة", title: "الوسطى من أتباع التابعين", era: "إلى سنة 195 هـ", scholars: "ابن عيينة، عبد الله بن المبارك، إسماعيل بن علية، وكيع" },
+      { num: "التاسعة", title: "صغار أتباع التابعين", era: "إلى سنة 210 هـ", scholars: "الشافعي، عبد الرحمن بن مهدي، يحيى القطان، يزيد بن هارون" },
+      { num: "العاشرة", title: "كبار الآخذين عن تبع الأتباع (من لم يلقَ الأتباع)", era: "إلى سنة 245 هـ", scholars: "أحمد بن حنبل، يحيى بن معين، علي بن المديني، إسحاق بن راهويه" },
+      { num: "الحادية عشرة", title: "أوساط الآخذين (طبقة أصحاب المصنفات)", era: "إلى سنة 275 هـ", scholars: "البخاري، مسلم، أبو داود، ابن ماجه" },
+      { num: "الثانية عشرة", title: "صغار الآخذين (خاتمة الرواة المستدركين)", era: "إلى سنة 305 هـ", scholars: "الترمذي، النسائي، البزار، ابن خزيمة" }
+    ];
+
+    function renderIbnHajarTable() {
+      const tbody = document.getElementById("ibnHajarTableBody");
+      tbody.innerHTML = "";
+      IBN_HAJAR_LAYERS.forEach((row, i) => {
+        const tr = document.createElement("tr");
+        tr.className = i % 2 === 0 ? "bg-white hover:bg-stone-50" : "bg-stone-50/70 hover:bg-stone-100";
+        tr.innerHTML = `
+          <td class="p-3 border border-stone-200 font-bold text-emerald-950">الطبقة ${row.num}</td>
+          <td class="p-3 border border-stone-200 font-medium">${row.title}</td>
+          <td class="p-3 border border-stone-200 text-stone-600 font-mono">${row.era}</td>
+          <td class="p-3 border border-stone-200 text-stone-700">${row.scholars}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ============================================================
+       9. النافذة المنبثقة لترجمة الراوي (Detail Modal)
+       ============================================================ */
+    const narratorDetailModal = document.getElementById("narratorDetailModal");
+    const btnCloseDetailModal = document.getElementById("btnCloseDetailModal");
+    const modalNarratorName = document.getElementById("modalNarratorName");
+    const modalNarratorLayerBadge = document.getElementById("modalNarratorLayerBadge");
+    const modalNarratorStatus = document.getElementById("modalNarratorStatus");
+    const modalNarratorDeath = document.getElementById("modalNarratorDeath");
+    const modalNarratorId = document.getElementById("modalNarratorId");
+    const modalNarratorTeachersList = document.getElementById("modalNarratorTeachersList");
+    const btnSetAsTreeRootFromModal = document.getElementById("btnSetAsTreeRootFromModal");
+
+    let currentModalNarrator = null;
+
+    function openNarratorModal(narrator) {
+      if (!narrator) return;
+      currentModalNarrator = narrator;
+
+      modalNarratorName.textContent = narrator["اسم_الراوي"];
+      modalNarratorLayerBadge.textContent = narrator["الطبقة"] || "غير محدد";
+      modalNarratorStatus.textContent = narrator["الجرح_والتعديل"] || "لم يذكر جرح وتعديل";
+      modalNarratorDeath.textContent = narrator["تاريخ_الوفاة"] || "غير مؤرخ بدقة";
+      modalNarratorId.textContent = `#${narrator["رقم_تسلسلي"]}`;
+
+      // شيوخ الراوي
+      modalNarratorTeachersList.innerHTML = "";
+      const sheikhIds = narrator["الشيوخ"] || [];
+      if (sheikhIds.length === 0) {
+        modalNarratorTeachersList.innerHTML = `<span class="text-stone-400 italic">لا يوجد شيوخ مسجلون في هذه القاعدة أو أنه من طبقة الصحابة.</span>`;
+      } else {
+        sheikhIds.forEach(sId => {
+          const s = narratorsMap.get(sId);
+          const tag = document.createElement("span");
+          tag.className = "px-2 py-1 rounded bg-white border border-stone-300 hover:border-emerald-600 hover:bg-emerald-50 cursor-pointer text-stone-800 transition font-medium";
+          tag.textContent = s ? s["اسم_الراوي"] : `راوٍ #${sId}`;
+          tag.addEventListener("click", () => {
+            if (s) openNarratorModal(s);
+          });
+          modalNarratorTeachersList.appendChild(tag);
+        });
+      }
+
+      narratorDetailModal.classList.remove("hidden");
+    }
+
+    btnCloseDetailModal.addEventListener("click", () => {
+      narratorDetailModal.classList.add("hidden");
+    });
+    narratorDetailModal.addEventListener("click", (e) => {
+      if (e.target === narratorDetailModal) narratorDetailModal.classList.add("hidden");
+    });
+
+    btnSetAsTreeRootFromModal.addEventListener("click", () => {
+      if (currentModalNarrator) {
+        narratorDetailModal.classList.add("hidden");
+        document.querySelector('[data-tab="tabTree"]').click();
+        renderTree(currentModalNarrator["رقم_تسلسلي"]);
+        showToast(`تم عرض مشجر: ${currentModalNarrator["اسم_الراوي"]}`);
+      }
+    });
+
+    /* ============================================================
+       10. استيراد موسوعة الـ 24 ألف راوٍ إلى IndexedDB
+       ============================================================ */
+    const importModal = document.getElementById("importModal");
+    const btnOpenImportModal = document.getElementById("btnOpenImportModal");
+    const btnCloseImportModal = document.getElementById("btnCloseImportModal");
+    const btnCancelImport = document.getElementById("btnCancelImport");
+    const modalDropZone = document.getElementById("modalDropZone");
+    const modalFileInput = document.getElementById("modalFileInput");
+    const modalFileNameLabel = document.getElementById("modalFileNameLabel");
+    const btnStartImport = document.getElementById("btnStartImport");
+    const importProgressBarContainer = document.getElementById("importProgressBarContainer");
+    const importProgressBar = document.getElementById("importProgressBar");
+    const importProgressPercent = document.getElementById("importProgressPercent");
+    const importProgressStatus = document.getElementById("importProgressStatus");
+
+    let importFileTarget = null;
+
+    btnOpenImportModal.addEventListener("click", () => importModal.classList.remove("hidden"));
+    btnCloseImportModal.addEventListener("click", () => importModal.classList.add("hidden"));
+    btnCancelImport.addEventListener("click", () => importModal.classList.add("hidden"));
+
+    modalDropZone.addEventListener("click", () => modalFileInput.click());
+    modalFileInput.addEventListener("change", (e) => handleImportFileSelect(e.target.files[0]));
+
+    function handleImportFileSelect(file) {
+      if (!file || !file.name.endsWith(".json")) {
+        showToast("يرجى اختيار ملف JSON فقط", "⚠️");
+        return;
+      }
+      importFileTarget = file;
+      modalFileNameLabel.textContent = `الملف المختار: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+      btnStartImport.disabled = false;
+    }
+
+    btnStartImport.addEventListener("click", () => {
+      if (!importFileTarget) return;
+
+      btnStartImport.disabled = true;
+      importProgressBarContainer.classList.remove("hidden");
+      importProgressBar.style.width = "20%";
+      importProgressPercent.textContent = "20%";
+      importProgressStatus.textContent = "جاري قراءة الملف وتحليله...";
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          importProgressBar.style.width = "40%";
+          importProgressPercent.textContent = "40%";
+          importProgressStatus.textContent = "جاري فك الترميز وهيكلة البيانات...";
+
+          let rawData = JSON.parse(e.target.result);
+          if (!Array.isArray(rawData) && typeof rawData === "object") {
+            for (const k of ["narrators", "rawis", "data", "الرواة"]) {
+              if (Array.isArray(rawData[k])) {
+                rawData = rawData[k];
+                break;
+              }
+            }
           }
 
-          if (!isVisible) style += " opacity-25 scale-95";
+          if (!Array.isArray(rawData) || rawData.length === 0) {
+            throw new Error("الملف لا يحتوي على مصفوفة رواة صحيحة");
+          }
 
-          const btn = document.createElement("button");
-          btn.id = `node-card-${n.id}`;
-          btn.className = `node-card text-right px-3 py-2 rounded-xl border min-w-[135px] max-w-[170px] flex flex-col gap-0.5 ${style}`;
-          btn.innerHTML = `
-            <div class="flex items-center justify-between w-full text-[10px] text-stone-500">
-              <span>${n.region}</span>
-              ${badge}
-            </div>
-            <div class="font-bold text-xs md:text-sm font-amiri leading-snug">${n.name}</div>
-            <div class="text-[10px] text-stone-500 flex items-center justify-between w-full">
-              <span>${n.deathText}</span>
-              <span class="font-bold text-amber-800">[${n.ramz.split(" ")[0]}]</span>
-            </div>
-          `;
-
-          btn.addEventListener("click", () => {
-            state.selectedNarratorId = n.id;
-            renderTree();
-            renderInspector();
+          // الحفظ في IndexedDB عبر معاملات متتالية ومستقرة لتفادي إغلاق المعاملة (Auto-Commit)
+          if (!dbInstance) await openDatabase();
+          
+          // 1. تفريغ البيانات السابقة أولاً
+          await new Promise((resolve, reject) => {
+            const clearTx = dbInstance.transaction(STORE_NAME, "readwrite");
+            const clearStore = clearTx.objectStore(STORE_NAME);
+            const req = clearStore.clear();
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
           });
 
-          nodesWrap.appendChild(btn);
-        });
+          const total = rawData.length;
+          const chunkSize = 3000; // رفع حجم الدفعة لسرعة فائقة
+          let currentIdx = 0;
 
-        row.appendChild(nodesWrap);
-        container.appendChild(row);
-      });
+          function saveNextChunk() {
+            if (currentIdx >= total) {
+              // اكتمال تخزين جميع الرواة بنجاح
+              importProgressBar.style.width = "100%";
+              importProgressPercent.textContent = "100%";
+              importProgressStatus.textContent = "✅ اكتمل الاستيراد والتخزين بنجاح!";
+              
+              activeNarratorsList = rawData;
+              rebuildMap();
+              filteredNarrators = [...activeNarratorsList];
+              renderEncyclopedia();
+              renderTree(currentTreeRootId);
+              updateDbStatusUI(true, rawData.length);
 
-      requestAnimationFrame(drawSvgConnectors);
-    }
+              setTimeout(() => {
+                importModal.classList.add("hidden");
+                showToast(`تم استيراد ${rawData.length.toLocaleString('ar-EG')} راوٍ وتفعيل الموسوعة كاملة!`, "🎉");
+              }, 800);
+              return;
+            }
 
-    function drawSvgConnectors() {
-      const svg = document.getElementById("treeSvgOverlay");
-      const stage = document.getElementById("treeStage");
-      if (!svg || !stage) return;
+            const tx = dbInstance.transaction(STORE_NAME, "readwrite");
+            const store = tx.objectStore(STORE_NAME);
+            const end = Math.min(currentIdx + chunkSize, total);
 
-      const stageRect = stage.getBoundingClientRect();
-      svg.setAttribute("width", stage.scrollWidth);
-      svg.setAttribute("height", stage.scrollHeight);
-      svg.innerHTML = "";
+            for (let i = currentIdx; i < end; i++) {
+              store.put(rawData[i]);
+            }
 
-      const selId = state.selectedNarratorId;
+            tx.oncomplete = () => {
+              currentIdx = end;
+              const pct = Math.floor(40 + (currentIdx / total) * 58);
+              importProgressBar.style.width = `${pct}%`;
+              importProgressPercent.textContent = `${pct}%`;
+              importProgressStatus.textContent = `تم تخزين ${currentIdx.toLocaleString('ar-EG')} من ${total.toLocaleString('ar-EG')} راوٍ...`;
+              
+              // الانتقال للدفعة التالية فور تأكيد المتصفح نجاح الحفظ
+              saveNextChunk();
+            };
 
-      state.edges.forEach(([tId, sId]) => {
-        const tEl = document.getElementById(`node-card-${tId}`);
-        const sEl = document.getElementById(`node-card-${sId}`);
-        if (!tEl || !sEl) return;
+            tx.onerror = (err) => {
+              throw new Error("خطأ أثناء حفظ الدفعة: " + (err.target.error ? err.target.error.message : ""));
+            };
+          }
 
-        const tRect = tEl.getBoundingClientRect();
-        const sRect = sEl.getBoundingClientRect();
+          saveNextChunk();
 
-        const x1 = tRect.left - stageRect.left + tRect.width / 2;
-        const y1 = tRect.bottom - stageRect.top;
-        const x2 = sRect.left - stageRect.left + sRect.width / 2;
-        const y2 = sRect.top - stageRect.top;
-
-        const midY = (y1 + y2) / 2;
-        const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
-
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", d);
-        path.setAttribute("fill", "none");
-        path.setAttribute("class", "edge-path");
-
-        if (selId && sId === selId) {
-          path.setAttribute("stroke", "#059669");
-          path.setAttribute("stroke-width", "2.8");
-          path.setAttribute("opacity", "0.95");
-        } else if (selId && tId === selId) {
-          path.setAttribute("stroke", "#0284c7");
-          path.setAttribute("stroke-width", "2.8");
-          path.setAttribute("opacity", "0.95");
-        } else {
-          path.setAttribute("stroke", "#94a3b8");
-          path.setAttribute("stroke-width", "1.1");
-          path.setAttribute("opacity", "0.25");
+        } catch (err) {
+          importProgressStatus.textContent = "❌ خطأ في القراءة أو التخزين: " + err.message;
+          btnStartImport.disabled = false;
         }
+      };
 
-        svg.appendChild(path);
-      });
+      reader.readAsText(importFileTarget, "utf-8");
+    });
+
+    /* ============================================================
+       11. دوال مساعدة عامة وتنبيهات
+       ============================================================ */
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
     }
 
-    function renderInspector() {
-      const n = getNarratorById(state.selectedNarratorId) || state.narrators[0];
-      if (!n) return;
+    function showToast(text, icon = "ℹ️") {
+      const toast = document.getElementById("toastMessage");
+      document.getElementById("toastIcon").textContent = icon;
+      document.getElementById("toastText").textContent = text;
+      toast.classList.remove("opacity-0", "pointer-events-none", "translate-y-3");
+      toast.classList.add("opacity-100", "translate-y-0");
 
-      document.getElementById("inspName").textContent = n.name;
-      document.getElementById("inspKunya").textContent = `${n.kunya} • ${n.deathText}`;
-      document.getElementById("inspRank").textContent = n.rank;
-      document.getElementById("inspRamz").textContent = n.ramz;
-      document.getElementById("inspBio").textContent = n.bio;
-
-      const tWrap = document.getElementById("inspTeachersList");
-      const sWrap = document.getElementById("inspStudentsList");
-      tWrap.innerHTML = "";
-      sWrap.innerHTML = "";
-
-      getTeachersOf(n.id).forEach(t => {
-        const b = document.createElement("button");
-        b.className = "px-2 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold";
-        b.textContent = t.name;
-        b.addEventListener("click", () => {
-          state.selectedNarratorId = t.id;
-          renderTree();
-          renderInspector();
-        });
-        tWrap.appendChild(b);
-      });
-
-      getStudentsOf(n.id).forEach(s => {
-        const b = document.createElement("button");
-        b.className = "px-2 py-0.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 text-xs font-semibold";
-        b.textContent = s.name;
-        b.addEventListener("click", () => {
-          state.selectedNarratorId = s.id;
-          renderTree();
-          renderInspector();
-        });
-        sWrap.appendChild(b);
-      });
+      setTimeout(() => {
+        toast.classList.remove("opacity-100", "translate-y-0");
+        toast.classList.add("opacity-0", "pointer-events-none", "translate-y-3");
+      }, 3500);
     }
 
-    // =========================================================================
-    // 6. ENCYCLOPEDIA & POPULATE SELECTS
-    // =========================================================================
-    function populateNarratorSelects() {
-      const optionsHtml = state.narrators
-        .map(n => `<option value="${n.id}">[ط${n.layer}] ${n.name} (${n.deathText})</option>`)
-        .join("");
+    /* ============================================================
+       12. تهيئة وتشغيل المنصة عند فتح الصفحة
+       ============================================================ */
+    window.addEventListener("DOMContentLoaded", async () => {
+      // 1. فحص هل يوجد بيانات مخزنة مسبقاً في المتصفح
+      try {
+        await loadDataFromIndexedDB();
+      } catch (e) {
+        rebuildMap();
+      }
 
-      ["takhrijNarratorSelect", "chainBuilderAddSelect", "selectTeacherNode", "selectStudentNode"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = optionsHtml;
-      });
-    }
+      // 2. رسم المكونات المبدئية
+      renderTree(60); // البخاري
+      renderChainBuilder();
+      renderEncyclopedia();
+      renderGoldenChains();
+      renderIbnHajarTable();
 
-    function switchTab(tabId) {
-      document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
-      const target = document.getElementById(`tab-${tabId}`);
-      if (target) target.classList.remove("hidden");
-
-      document.querySelectorAll(".nav-tab-btn").forEach(btn => {
-        if (btn.getAttribute("data-tab") === tabId) {
-          btn.className = "nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1.5 shrink-0 transition";
-        } else {
-          btn.className = "nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium text-emerald-100 hover:bg-emerald-800/70 flex items-center gap-1.5 shrink-0 transition";
-        }
-      });
-
-      if (tabId === "tree") requestAnimationFrame(drawSvgConnectors);
-    }
-
-    function runContinuityCheck() {
-      const tId = document.getElementById("selectTeacherNode").value;
-      const sId = document.getElementById("selectStudentNode").value;
-      const box = document.getElementById("continuityResultBox");
-      const t = getNarratorById(tId);
-      const s = getNarratorById(sId);
-      if (!t || !s || !box) return;
-
-      const direct = state.edges.some(([x, y]) => x === tId && y === sId);
-      const diff = s.deathYear - t.deathYear;
-
-      box.innerHTML = direct
-        ? `<div class="p-2.5 rounded-lg bg-emerald-100 text-emerald-950 border border-emerald-300 font-bold">✓ سماع واتصال مباشر ثابت بين (${s.name}) وشيخه (${t.name}) بفارق ${diff} سنة.</div>`
-        : `<div class="p-2.5 rounded-lg bg-amber-100 text-amber-950 border border-amber-300 font-bold">⚠️ فارق السنين ${diff} سنة، ولم يسجل خط سماع مباشر في المشجّر المختصر.</div>`;
-    }
-
-    // =========================================================================
-    // 7. INITIALIZATION ON LOAD
-    // =========================================================================
-    window.addEventListener("DOMContentLoaded", () => {
-      populateNarratorSelects();
-      loadTakhrijPreset("bunya");
-      renderTree();
-      renderInspector();
-      runFullSanadAudit();
-
-      // Tab switcher clicks
-      document.querySelectorAll(".nav-tab-btn").forEach(btn => {
-        btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
-      });
-
-      // Quick CTA from Tab 1 to Tab 2
-      document.getElementById("btnSendCurrentToIllahEngine")?.addEventListener("click", () => {
-        switchTab("analyzer");
-        runFullSanadAudit();
-        showToast("تم تحويل السند وتشغيل محرك كشف العلل!");
-      });
-
-      document.getElementById("btnRunFullSanadAudit")?.addEventListener("click", () => {
-        runFullSanadAudit();
-        showToast("اكتمل الفحص الآلي للسند!");
-      });
-
-      // Presets
-      document.querySelectorAll("[data-takhrij-preset]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          loadTakhrijPreset(btn.getAttribute("data-takhrij-preset"));
-          showToast("تم تحميل المتن والسند المعتمد");
-        });
-      });
-
-      // Add Step to Chain
-      document.getElementById("btnAddTakhrijStep")?.addEventListener("click", () => {
-        const sighah = document.getElementById("takhrijSighahSelect").value;
-        const customName = document.getElementById("takhrijCustomNarratorName").value.trim();
-        const narratorId = document.getElementById("takhrijNarratorSelect").value;
-
-        if (customName) {
-          state.takhrijSteps.push({ sighah, customName });
-          document.getElementById("takhrijCustomNarratorName").value = "";
-        } else if (narratorId) {
-          state.takhrijSteps.push({ sighah, narratorId });
-        }
-        renderTakhrijSheet();
-      });
-
-      document.getElementById("btnClearTakhrijSteps")?.addEventListener("click", () => {
-        state.takhrijSteps = [];
-        renderTakhrijSheet();
-      });
-
-      document.getElementById("btnRunContinuityCheck")?.addEventListener("click", runContinuityCheck);
-
-      // Search narrator in tree
-      document.getElementById("searchNarratorInput")?.addEventListener("input", e => {
-        state.searchQuery = e.target.value.trim();
-        renderTree();
-      });
-
-      // Resize listener for SVG lines
-      window.addEventListener("resize", () => requestAnimationFrame(drawSvgConnectors));
+      showToast("مرحباً بك في مشجر طبقات الرواة", "📜");
     });
   </script>
-
 </body>
 </html>
